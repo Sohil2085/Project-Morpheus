@@ -11,6 +11,8 @@ import './App.css';
 import { Toaster } from 'react-hot-toast'; // Import Toaster
 import AdminDashboard from './pages/AdminDashboard';
 
+import Landing from './pages/Landing'; // Import Landing page
+
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading, isAuthenticated } = useAuth();
 
@@ -73,6 +75,11 @@ function App() {
         />
         <Routes>
           {/* Public Routes */}
+          <Route path="/" element={
+            <PublicRoute>
+              <Landing />
+            </PublicRoute>
+          } />
           <Route path="/login" element={
             <PublicRoute>
               <Login />
