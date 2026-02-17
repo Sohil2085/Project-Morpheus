@@ -12,6 +12,7 @@ import { Toaster } from 'react-hot-toast'; // Import Toaster
 import AdminDashboard from './pages/AdminDashboard';
 
 import Landing from './pages/Landing'; // Import Landing page
+import InvoiceList from './pages/InvoiceList';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading, isAuthenticated } = useAuth();
@@ -100,6 +101,11 @@ function App() {
           <Route path="/upload-invoice" element={
             <ProtectedRoute allowedRoles={['MSME']}>
               <UploadInvoice />
+            </ProtectedRoute>
+          } />
+          <Route path="/invoices" element={
+            <ProtectedRoute allowedRoles={['MSME']}>
+              <InvoiceList />
             </ProtectedRoute>
           } />
 
