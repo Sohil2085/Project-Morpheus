@@ -7,6 +7,12 @@ const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const isLanding = location.pathname === '/';
+    
+    // Hide navbar completely on auth pages when not logged in
+    const authPages = ['/login', '/register'];
+    if (authPages.includes(location.pathname)) {
+        return null;
+    }
 
     const handleLogout = () => {
         logout();
