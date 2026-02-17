@@ -48,8 +48,9 @@ model User {
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
-  invoices Invoice[] @relation("UserInvoices")
-  bids     Bid[]     @relation("UserBids")
+  invoices     Invoice[]     @relation("UserInvoices")
+  bids         Bid[]         @relation("UserBids")
+  fraud_flags  FraudFlag[]
 
   @@index([email])
   @@map("users")
@@ -70,6 +71,7 @@ model Invoice {
   credit_score CreditScore?
   bids         Bid[]
   transactions Transaction[]
+  fraud_flags  FraudFlag[]
 
   @@index([user_id])
   @@index([status])
@@ -116,4 +118,20 @@ model Transaction {
 
   @@index([invoice_id])
   @@map("transactions")
+}
+
+
+model FraudFlag {
+  id         String   @id @default(uuid())
+  invoiceId  String?
+  invoice    Invoice? @relation(fields: [invoiceId], references: [id])
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  reason     String
+  riskScore  Int
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([invoiceId])
+  @@map("fraud_flags")
 }

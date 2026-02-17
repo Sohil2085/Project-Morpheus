@@ -7,7 +7,7 @@ const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const isLanding = location.pathname === '/';
-    
+
     // Hide navbar on auth pages and admin pages
     const hideNavbarRoutes = ['/login', '/register', '/admin'];
     if (hideNavbarRoutes.some(route => location.pathname.startsWith(route))) {
@@ -87,25 +87,30 @@ const Navbar = () => {
     if (!user) return null;
 
     return (
-        <nav style={{ padding: '1rem', borderBottom: '1px solid #ccc', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', position: 'relative', zIndex: 10 }}>
-            <div style={{ fontWeight: 'bold' }}>
+        <nav className="sticky top-0 z-50 w-full backdrop-blur-lg bg-bg0/80 border-b border-cardBorder px-6 py-4 flex justify-between items-center transition-all duration-300">
+            <div className="font-bold text-xl tracking-tight text-white cursor-pointer" onClick={() => navigate('/msme')}>
                 FinBridge
             </div>
-            <div style={{ display: 'flex', gap: '1rem' }}>
+            <div className="flex items-center gap-6">
                 {user.role === 'MSME' && (
                     <>
-                        <Link to="/msme">Dashboard</Link>
-                        <Link to="/upload-invoice">Upload Invoice</Link>
-                        <Link to="/analytics">Analytics</Link>
+                        <Link to="/msme" className="text-sm font-medium text-muted hover:text-accent transition-colors">Dashboard</Link>
+                        <Link to="/upload-invoice" className="text-sm font-medium text-muted hover:text-accent transition-colors">Upload Invoice</Link>
+                        <Link to="/invoices" className="text-sm font-medium text-muted hover:text-accent transition-colors">Invoices</Link>
                     </>
                 )}
                 {user.role === 'LENDER' && (
                     <>
-                        <Link to="/lender">Dashboard</Link>
-                        <Link to="/analytics">Analytics</Link>
+                        <Link to="/lender" className="text-sm font-medium text-muted hover:text-accent transition-colors">Dashboard</Link>
+                        <Link to="/analytics" className="text-sm font-medium text-muted hover:text-accent transition-colors">Analytics</Link>
                     </>
                 )}
-                <button onClick={handleLogout} style={{ padding: '0.5rem 1rem' }}>Logout</button>
+                <button
+                    onClick={handleLogout}
+                    className="text-sm font-medium text-white/80 hover:text-danger hover:bg-danger/10 px-4 py-2 rounded-lg transition-all"
+                >
+                    Logout
+                </button>
             </div>
         </nav>
     );

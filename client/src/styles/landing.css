@@ -570,8 +570,7 @@ html::-webkit-scrollbar-thumb:hover {
     will-change: transform, border-color;
     backface-visibility: hidden;
 }
-}
-}
+
 
 .dual-card::before {
     content: '';
@@ -782,8 +781,7 @@ html::-webkit-scrollbar-thumb:hover {
     will-change: transform, border-color;
     backface-visibility: hidden;
 }
-}
-}
+
 
 .security-card:hover {
     border-color: rgba(59, 130, 246, 0.4);
@@ -841,7 +839,6 @@ html::-webkit-scrollbar-thumb:hover {
     transition: all 0.3s ease;
     will-change: transform, border-color, background;
     backface-visibility: hidden;
-}}
 }
 
 .metric-card:hover {
