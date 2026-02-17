@@ -1,56 +1,79 @@
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import AdminLayout from '../components/admin/AdminLayout';
+import KPICard from '../components/admin/KPICard';
+import RecentActivity from '../components/admin/RecentActivity';
+import RiskAlerts from '../components/admin/RiskAlerts';
+import AdminTables from '../components/admin/AdminTables';
+import {
+    Building2,
+    Briefcase,
+    FileText,
+    TrendingUp,
+} from 'lucide-react';
 
 const AdminDashboard = () => {
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
-
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
-    };
+    // Mock KPI data
+    const kpiData = [
+        {
+            title: 'Total MSMEs',
+            value: '1,284',
+            icon: Building2,
+            subtitle: 'Active businesses',
+            trend: { text: '+12% this month', positive: true },
+        },
+        {
+            title: 'Total Lenders',
+            value: '567',
+            icon: Briefcase,
+            subtitle: 'Investment partners',
+            trend: { text: '+8% this month', positive: true },
+        },
+        {
+            title: 'Total Invoices',
+            value: '5,421',
+            icon: FileText,
+            subtitle: 'Uploaded & tracked',
+            trend: { text: '-3% this month', positive: false },
+        },
+        {
+            title: 'Total Funding',
+            value: '₹45.2Cr',
+            icon: TrendingUp,
+            subtitle: 'Disbursed amount',
+            trend: { text: '+24% this month', positive: true },
+        },
+    ];
 
     return (
-        <div style={{ padding: '2rem', color: 'white' }}>
-            <h1>Admin Dashboard</h1>
-            <p>Welcome, {user?.name}!</p>
-            <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
-                <div style={{
-                    padding: '1.5rem',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    borderRadius: '12px',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    flex: 1
-                }}>
-                    <h3>User Management</h3>
-                    <p>Manage MSMEs and Lenders.</p>
+        <AdminLayout title="Overview">
+            {/* KPI Cards */}
+            <section className="admin-section">
+                <div className="kpi-grid">
+                    {kpiData.map((kpi) => (
+                        <KPICard
+                            key={kpi.title}
+                            title={kpi.title}
+                            value={kpi.value}
+                            icon={kpi.icon}
+                            subtitle={kpi.subtitle}
+                            trend={kpi.trend}
+                        />
+                    ))}
                 </div>
-                <div style={{
-                    padding: '1.5rem',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    borderRadius: '12px',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    flex: 1
-                }}>
-                    <h3>System Settings</h3>
-                    <p>Configure platform settings.</p>
+            </section>
+
+            {/* Activity & Alerts Section */}
+            <section className="admin-section">
+                <div className="two-column-grid">
+                    <RecentActivity />
+                    <RiskAlerts />
                 </div>
-            </div>
-            <button
-                onClick={handleLogout}
-                style={{
-                    marginTop: '2rem',
-                    padding: '0.5rem 1rem',
-                    background: '#ef4444',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer'
-                }}
-            >
-                Logout
-            </button>
-        </div>
+            </section>
+
+            {/* Tables Section */}
+            <section className="admin-section">
+                <AdminTables />
+            </section>
+        </AdminLayout>
     );
 };
 
