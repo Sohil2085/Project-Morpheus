@@ -275,6 +275,8 @@ body {
 
 .input-wrapper {
     position: relative;
+    color: var(--muted);
+    transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Use direct child selector to avoid impacting eye icon inside button */
@@ -283,10 +285,25 @@ body {
     left: 1rem;
     top: 50%;
     transform: translateY(-50%);
-    color: var(--muted);
-    transition: color 0.2s;
+    color: inherit;
+    transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
     z-index: 2;
+}
+
+/* Change wrapper color and input style when focused */
+.input-wrapper:focus-within {
+    color: #1f2937;
+}
+
+.input-wrapper:focus-within .form-input {
+    background: #ffffff;
+    color: #1f2937;
+    border-color: var(--accent);
+}
+
+.input-wrapper:focus-within .eye-icon {
+    color: inherit;
 }
 
 .form-input {
@@ -309,13 +326,7 @@ body {
 
 .form-input:focus {
     outline: none;
-    border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-    background: rgba(15, 23, 42, 0.8);
-}
-
-.form-input:focus+svg {
-    color: var(--accent);
 }
 
 /* Select */
@@ -332,24 +343,21 @@ select.form-input {
     transform: translateY(-50%);
     background: none;
     border: none;
-    padding: 0;
-    color: var(--muted);
+    padding: 0.25rem;
+    color: inherit;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: color 0.2s;
+    transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 10;
-    /* Ensure clickable */
-    padding: 0.25rem;
-    /* Touch area */
     border-radius: 50%;
 }
 
 .eye-icon:hover {
-    color: #fff;
     background-color: rgba(255, 255, 255, 0.05);
 }
+
 
 /* Button */
 .btn-primary {

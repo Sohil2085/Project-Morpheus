@@ -8,9 +8,9 @@ const Navbar = () => {
     const location = useLocation();
     const isLanding = location.pathname === '/';
     
-    // Hide navbar completely on auth pages when not logged in
-    const authPages = ['/login', '/register'];
-    if (authPages.includes(location.pathname)) {
+    // Hide navbar on auth pages and admin pages
+    const hideNavbarRoutes = ['/login', '/register', '/admin'];
+    if (hideNavbarRoutes.some(route => location.pathname.startsWith(route))) {
         return null;
     }
 
