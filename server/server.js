@@ -1,8 +1,6 @@
+import 'dotenv/config';
 import app from './app.js';
-import dotenv from 'dotenv';
 
-
-dotenv.config();
 // Middleware is configured in app.js
 
 
