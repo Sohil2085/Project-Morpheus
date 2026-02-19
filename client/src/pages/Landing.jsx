@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -14,9 +14,23 @@ const Landing = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Simulate loading time
+        // sessionStorage only exists in a browser environment
+        if (typeof window === 'undefined' || !window.sessionStorage) {
+            return;
+        }
+
+        const seen = sessionStorage.getItem('landingAnimationPlayed');
+        if (seen) {
+            setTimeout(() => {
+                setIsLoading(false);
+            }, 0);
+            return;
+        }
+
+        // Simulate loading time on first visit
         const timer = setTimeout(() => {
             setIsLoading(false);
+            sessionStorage.setItem('landingAnimationPlayed', 'true');
         }, 2000);
         return () => clearTimeout(timer);
     }, []);
