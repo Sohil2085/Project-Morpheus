@@ -41,94 +41,109 @@ const UploadInvoice = () => {
     };
 
     return (
-        <div className="p-6 md:p-8 max-w-3xl mx-auto animate-fade-in">
-            <button
-                onClick={() => navigate(-1)}
-                className="flex items-center gap-2 text-muted hover:text-white mb-6 transition-colors"
-            >
-                <ArrowLeft size={18} />
-                <span>Back</span>
-            </button>
+        <div className="min-h-screen relative overflow-hidden bg-slate-950">
+            <div className="absolute top-0 right-1/3 w-96 h-96 bg-blue-600 rounded-full -z-10 blur-3xl opacity-[0.10] pointer-events-none"></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900/40 to-slate-950 -z-10 pointer-events-none"></div>
 
-            <div className="bg-card border border-cardBorder rounded-xl overflow-hidden shadow-2xl backdrop-blur-sm">
-                <div className="p-6 md:p-8 border-b border-cardBorder bg-bg1/30">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 rounded-lg bg-accent/10 text-accent">
-                            <ShieldCheck size={24} />
-                        </div>
-                        <h1 className="text-2xl font-bold text-white">Create New Invoice</h1>
-                    </div>
-                    <p className="text-muted ml-12">Submit invoice details for fraud assessment and financing.</p>
-                </div>
+            <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-in">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="inline-flex items-center gap-2 text-white/60 hover:text-white mb-8 transition-colors text-sm px-3 py-1.5 rounded-lg hover:bg-white/5"
+                >
+                    <ArrowLeft size={16} />
+                    <span>Back</span>
+                </button>
 
-                <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6">
-                    <div className="space-y-4">
-                        <div className="form-group">
-                            <label className="block text-sm font-medium text-muted mb-2">Buyer GSTIN</label>
-                            <input
-                                type="text"
-                                name="buyerGstin"
-                                value={formData.buyerGstin}
-                                onChange={handleChange}
-                                placeholder="e.g. 27AAAAA0000A1Z5"
-                                className="form-input"
-                                required
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="form-group">
-                                <label className="block text-sm font-medium text-muted mb-2">Amount (₹)</label>
-                                <input
-                                    type="number"
-                                    name="amount"
-                                    value={formData.amount}
-                                    onChange={handleChange}
-                                    placeholder="0.00"
-                                    className="form-input"
-                                    min="1"
-                                    required
-                                />
+                <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl overflow-hidden shadow-2xl">
+                    {/* Card Header */}
+                    <div className="px-8 pt-8 pb-6 border-b border-white/10">
+                        <div className="flex items-center gap-3 mb-1">
+                            <div className="h-9 w-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center">
+                                <ShieldCheck size={18} />
                             </div>
-
-                            <div className="form-group">
-                                <label className="block text-sm font-medium text-muted mb-2">Due Date</label>
-                                <input
-                                    type="date"
-                                    name="dueDate"
-                                    value={formData.dueDate}
-                                    onChange={handleChange}
-                                    className="form-input"
-                                    required
-                                />
-                            </div>
+                            <h1 className="text-xl font-semibold text-white">Create New Invoice</h1>
                         </div>
+                        <p className="text-white/50 text-sm ml-12">Submit invoice details for fraud assessment and financing.</p>
                     </div>
 
-                    <div className="pt-4 flex items-center justify-end gap-4">
-                        <button
-                            type="button"
-                            onClick={() => navigate(-1)}
-                            className="px-6 py-2.5 rounded-lg text-muted hover:text-white hover:bg-white/5 transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="btn-primary w-full md:w-auto px-8"
-                        >
-                            {loading ? (
-                                <div className="spinner h-5 w-5 border-white/30 border-t-white"></div>
-                            ) : (
-                                <div className="flex items-center gap-2">
-                                    <Save size={18} />
-                                    <span>Create Invoice</span>
+                    <form onSubmit={handleSubmit} className="px-8 py-8 space-y-6">
+                        <div className="space-y-5">
+                            {/* Buyer GSTIN */}
+                            <div>
+                                <label className="block text-xs font-medium text-white/60 uppercase tracking-wider mb-2">Buyer GSTIN</label>
+                                <input
+                                    type="text"
+                                    name="buyerGstin"
+                                    value={formData.buyerGstin}
+                                    onChange={handleChange}
+                                    placeholder="e.g. 27AAAAA0000A1Z5"
+                                    className="w-full bg-slate-950/60 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400/60 transition"
+                                    required
+                                />
+                                <p className="mt-1.5 text-xs text-white/30">15-character GST Identification Number of the buyer</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                {/* Amount */}
+                                <div>
+                                    <label className="block text-xs font-medium text-white/60 uppercase tracking-wider mb-2">Invoice Amount (₹)</label>
+                                    <input
+                                        type="number"
+                                        name="amount"
+                                        value={formData.amount}
+                                        onChange={handleChange}
+                                        placeholder="0.00"
+                                        className="w-full bg-slate-950/60 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400/60 transition"
+                                        min="1"
+                                        required
+                                    />
+                                    <p className="mt-1.5 text-xs text-white/30">Minimum ₹1</p>
                                 </div>
-                            )}
-                        </button>
-                    </div>
-                </form>
+
+                                {/* Due Date */}
+                                <div>
+                                    <label className="block text-xs font-medium text-white/60 uppercase tracking-wider mb-2">Due Date</label>
+                                    <input
+                                        type="date"
+                                        name="dueDate"
+                                        value={formData.dueDate}
+                                        onChange={handleChange}
+                                        className="w-full bg-slate-950/60 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400/60 transition"
+                                        required
+                                    />
+                                    <p className="mt-1.5 text-xs text-white/30">Invoice payment due date</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Divider */}
+                        <div className="border-t border-white/10"></div>
+
+                        <div className="flex items-center justify-end gap-3">
+                            <button
+                                type="button"
+                                onClick={() => navigate(-1)}
+                                className="px-5 py-2.5 rounded-xl text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium text-sm px-6 py-2.5 rounded-xl transition-all shadow-lg shadow-blue-500/20"
+                            >
+                                {loading ? (
+                                    <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+                                ) : (
+                                    <>
+                                        <Save size={15} />
+                                        <span>Create Invoice</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     );

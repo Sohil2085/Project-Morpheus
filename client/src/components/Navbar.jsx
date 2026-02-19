@@ -1,4 +1,4 @@
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import '../styles/landing.css';
 
@@ -22,39 +22,17 @@ const Navbar = () => {
     // Premium Landing Navbar (Desktop Only)
     if (isLanding) {
         return (
-            <nav style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: '76px', // Exact spec
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '0 48px', // Exact spec
-                backdropFilter: 'blur(12px)',
-                background: 'rgba(11, 18, 32, 0.65)',
-                borderBottom: '1px solid rgba(148, 163, 184, 0.10)',
-                zIndex: 1000,
-                minWidth: '1200px' // Enforce desktop width
-            }}>
+            <nav className="fixed top-0 left-0 right-0 h-20 px-12 flex justify-between items-center backdrop-blur bg-slate-950/70 border-b border-white/10 z-50 min-w-[1200px]">
                 {/* Brand Left - Text Only */}
                 <div
                     onClick={() => navigate('/')}
-                    style={{
-                        fontWeight: 800,
-                        fontSize: '20px',
-                        color: '#F8FAFC',
-                        letterSpacing: '-0.02em',
-                        cursor: 'pointer',
-                        fontFamily: "'Inter', sans-serif"
-                    }}
+                    className="font-extrabold text-lg text-white tracking-tight cursor-pointer"
                 >
                     FinBridge
                 </div>
 
                 {/* Right Buttons */}
-                <div className="nav-button-container" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <div className="flex gap-3 items-center">
                     {!user ? (
                         <>
                             <button
@@ -86,28 +64,37 @@ const Navbar = () => {
     // Legacy Dashboard Navbar (Internal Pages)
     if (!user) return null;
 
+    const linkClass = ({ isActive }) =>
+        isActive
+            ? 'px-3 py-2 rounded-lg text-sm font-medium text-white bg-white/10 border border-white/10 transition-all'
+            : 'px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white hover:bg-white/5 transition-all';
+
     return (
-        <nav className="sticky top-0 z-50 w-full backdrop-blur-lg bg-bg0/80 border-b border-cardBorder px-6 py-4 flex justify-between items-center transition-all duration-300">
-            <div className="font-bold text-xl tracking-tight text-white cursor-pointer" onClick={() => navigate('/msme')}>
-                FinBridge
+        <nav className="sticky top-0 z-50 w-full backdrop-blur-xl bg-slate-950/60 border-b border-white/10 px-6 py-3 flex justify-between items-center">
+            <div
+                className="cursor-pointer flex items-center gap-0"
+                onClick={() => navigate('/msme')}
+            >
+                <span className="font-bold text-lg tracking-tight text-blue-400">Fin</span>
+                <span className="font-bold text-lg tracking-tight text-white">Bridge</span>
             </div>
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-1">
                 {user.role === 'MSME' && (
                     <>
-                        <Link to="/msme" className="text-sm font-medium text-muted hover:text-accent transition-colors">Dashboard</Link>
-                        <Link to="/upload-invoice" className="text-sm font-medium text-muted hover:text-accent transition-colors">Upload Invoice</Link>
-                        <Link to="/invoices" className="text-sm font-medium text-muted hover:text-accent transition-colors">Invoices</Link>
+                        <NavLink to="/msme" end className={linkClass}>Dashboard</NavLink>
+                        <NavLink to="/upload-invoice" className={linkClass}>Upload Invoice</NavLink>
+                        <NavLink to="/invoices" className={linkClass}>Invoices</NavLink>
                     </>
                 )}
                 {user.role === 'LENDER' && (
                     <>
-                        <Link to="/lender" className="text-sm font-medium text-muted hover:text-accent transition-colors">Dashboard</Link>
-                        <Link to="/analytics" className="text-sm font-medium text-muted hover:text-accent transition-colors">Analytics</Link>
+                        <NavLink to="/lender" end className={linkClass}>Dashboard</NavLink>
+                        <NavLink to="/analytics" className={linkClass}>Analytics</NavLink>
                     </>
                 )}
                 <button
                     onClick={handleLogout}
-                    className="text-sm font-medium text-white/80 hover:text-danger hover:bg-danger/10 px-4 py-2 rounded-lg transition-all"
+                    className="ml-2 px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-rose-400 hover:bg-rose-500/10 transition-all"
                 >
                     Logout
                 </button>

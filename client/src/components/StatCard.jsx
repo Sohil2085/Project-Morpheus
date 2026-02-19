@@ -1,35 +1,37 @@
 import React from 'react';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
-const colorMap = {
-    accent: { bg: 'bg-accent/10', text: 'text-accent' },
-    success: { bg: 'bg-success/10', text: 'text-success' },
-    danger: { bg: 'bg-danger/10', text: 'text-danger' },
-    warning: { bg: 'bg-warning/10', text: 'text-warning' },
+const iconColorMap = {
+    accent: 'text-blue-400',
+    success: 'text-emerald-400',
+    danger: 'text-rose-400',
+    warning: 'text-amber-400',
+    accent2: 'text-violet-400',
 };
 
 const StatCard = ({ title, value, icon: Icon, trend, trendValue, color = "accent" }) => {
     const isPositive = trend === 'up';
-    const colorClasses = colorMap[color] || colorMap.accent;
+    const iconColor = iconColorMap[color] || iconColorMap.accent;
 
     return (
-        <div className="bg-card border border-cardBorder rounded-xl p-6 shadow-lg backdrop-blur-sm hover:border-accent/30 transition-all duration-300">
-            <div className="flex justify-between items-start mb-4">
-                <div className={`p-3 rounded-lg ${colorClasses.bg} ${colorClasses.text}`}>
-                    {Icon && <Icon size={24} />}
+        <div className="rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.06)] hover:shadow-[0_0_0_1px_rgba(255,255,255,0.12)] hover:border-white/20 hover:bg-white/10 transition-all duration-300 group">
+            <div className="flex items-start justify-between mb-5">
+                <div className={`h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center ${iconColor}`}>
+                    {Icon && <Icon size={18} />}
                 </div>
                 {trendValue && (
-                    <div className={`flex items-center gap-1 text-sm font-medium ${isPositive ? 'text-success' : 'text-danger'}`}>
-                        {isPositive ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
+                    <div className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${
+                        isPositive
+                            ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/20'
+                            : 'bg-rose-500/15 text-rose-300 border border-rose-500/20'
+                    }`}>
+                        {isPositive ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
                         <span>{trendValue}</span>
                     </div>
                 )}
             </div>
-
-            <div>
-                <h3 className="text-muted text-sm font-medium mb-1">{title}</h3>
-                <p className="text-2xl font-bold text-white tracking-tight">{value}</p>
-            </div>
+            <p className="text-white/50 text-xs font-medium uppercase tracking-wider mb-2">{title}</p>
+            <p className="text-3xl font-semibold text-white tracking-tight">{value ?? '—'}</p>
         </div>
     );
 };
