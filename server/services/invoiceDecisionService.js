@@ -15,23 +15,7 @@ import { InvoiceStatus, RiskLevel } from '@prisma/client';
  */
 export const determineInvoiceStatus = ({ fraudScore, creditScore }) => {
     if (fraudScore >= 80) {
-        return 'PENDING'; // Using PENDING as 'REVIEW' since Schema only has PENDING, VERIFIED, FUNDED, SETTLED. 
-        // Or we might need to assume PENDING acts as Review. 
-        // User requested "REVIEW" status but Schema enum is PENDING | VERIFIED | FUNDED | SETTLED.
-        // I will check if I can map REVIEW to PENDING or if I should assume VERIFIED is the goal.
-        // WAIT: The prompt says "If fraudScore >= 80 -> status = REVIEW".
-        // Schema Enum: PENDING, VERIFIED, FUNDED, SETTLED.
-        // I cannot add a new Enum value easily without migration.
-        // Ideally I should stick to schema.
-        // Proposal: PENDING = Review/Initial State. VERIFIED = Approved.
-        // So if check fails, stay PENDING (or maybe we need a REJECTED? but schema doesn't have it).
-        // Let's stick to PENDING for 'REVIEW' cases, and VERIFIED for success.
-
-        // Actually, user explicitly asked for logic: "If fraudScore >= 80 -> status = REVIEW".
-        // If I strictly follow instructions, I should probably return a string 'REVIEW' 
-        // but the controller needs to save it to DB which expects Enum.
-        // I'll stick to 'PENDING' for the database persistence if it fails checks, 
-        // effectively meaning it needs manual review.
+        return 'PENDING';
     }
 
     if (creditScore < 40) {

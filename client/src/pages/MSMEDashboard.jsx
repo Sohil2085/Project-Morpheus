@@ -49,8 +49,74 @@ const MSMEDashboard = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-slate-950">
-                <div className="h-8 w-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin"></div>
+            <div className="min-h-screen relative overflow-hidden bg-slate-950">
+                {/* Glow Blobs */}
+                <div className="absolute top-0 right-1/4 w-[480px] h-[480px] bg-blue-600 rounded-full -z-10 blur-3xl opacity-[0.12] pointer-events-none"></div>
+                <div className="absolute bottom-1/4 -left-24 w-[400px] h-[400px] bg-cyan-500 rounded-full -z-10 blur-3xl opacity-[0.08] pointer-events-none"></div>
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900/40 to-slate-950 -z-10 pointer-events-none"></div>
+
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 animate-pulse">
+                    {/* Hero Header Skeleton */}
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-5">
+                        <div>
+                            <div className="h-6 w-32 bg-white/10 rounded-full mb-4"></div>
+                            <div className="h-10 w-72 md:w-96 bg-white/10 rounded-xl"></div>
+                            <div className="h-4 w-56 bg-white/5 rounded-md mt-2"></div>
+                        </div>
+                        <div className="shrink-0 h-10 w-36 bg-white/10 rounded-xl"></div>
+                    </div>
+
+                    {/* KPI Cards Skeleton */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+                        {[1, 2, 3, 4].map((i) => (
+                            <div key={i} className="p-6 rounded-2xl border border-white/10 bg-white/5 flex flex-col justify-between h-32">
+                                <div className="flex justify-between items-start">
+                                    <div className="h-4 w-24 bg-white/10 rounded"></div>
+                                    <div className="h-10 w-10 bg-white/10 rounded-xl"></div>
+                                </div>
+                                <div className="h-8 w-32 bg-white/10 rounded"></div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Charts Section Skeleton */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div className="lg:col-span-2 rounded-2xl border border-white/10 bg-white/5 p-6">
+                            <div className="flex justify-between items-center mb-6">
+                                <div className="h-5 w-24 bg-white/10 rounded"></div>
+                                <div className="h-6 w-24 bg-white/5 rounded-full"></div>
+                            </div>
+                            <div className="h-60 bg-white/5 rounded-xl"></div>
+                        </div>
+                        <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+                            <div className="flex justify-between items-center mb-6">
+                                <div className="h-5 w-32 bg-white/10 rounded"></div>
+                                <div className="h-6 w-20 bg-white/5 rounded-full"></div>
+                            </div>
+                            <div className="h-60 rounded-xl flex items-center justify-center">
+                                <div className="h-40 w-40 rounded-full border-[12px] border-white/5"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Quick Actions Skeleton */}
+                    <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+                        <div className="h-5 w-32 bg-white/10 rounded mb-5"></div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {[1, 2, 3].map(i => (
+                                <div key={i} className="p-5 rounded-2xl border border-white/5 bg-white/5/50">
+                                    <div className="flex justify-between mb-4">
+                                        <div className="h-10 w-10 bg-white/10 rounded-xl"></div>
+                                        <div className="h-4 w-4 bg-white/5 rounded mt-1"></div>
+                                    </div>
+                                    <div className="h-4 w-24 bg-white/10 rounded mb-2"></div>
+                                    <div className="h-3 w-36 bg-white/5 rounded"></div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -110,7 +176,7 @@ const MSMEDashboard = () => {
                     />
                     <StatCard
                         title="Business Age"
-                        value={user?.business_age ? `${user.business_age} Yrs` : "N/A"}
+                        value={user?.business_started_date ? `${new Date().getFullYear() - new Date(user.business_started_date).getFullYear()} Yrs` : "N/A"}
                         icon={Briefcase}
                         color="accent2"
                     />

@@ -29,15 +29,21 @@ export const createInvoice = async (req, res) => {
         // Get user's business age for services
         const user = await prisma.user.findUnique({
             where: { id: userId },
-            select: { business_age: true }
+            select: { business_started_date: true }
         });
 
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        // Default business age to 0 if not set
-        const businessAge = user.business_age || 0;
+        // Calculate business age in years dynamically
+        let businessAge = 0;
+        if (user.business_started_date) {
+            const startYear = new Date(user.business_started_date).getFullYear();
+            const currentYear = new Date().getFullYear();
+            businessAge = currentYear - startYear;
+            if (businessAge < 0) businessAge = 0;
+        }
 
         // 3. Create invoice with initial status PENDING
         // We create it first to have an ID for linking flags/scores

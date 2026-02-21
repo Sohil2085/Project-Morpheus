@@ -44,7 +44,7 @@ model User {
   password     String
   role         Role
   gstin        String?
-  business_age Int?     @map("business_age")
+  business_started_date DateTime?
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 

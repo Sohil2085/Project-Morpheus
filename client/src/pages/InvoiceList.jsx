@@ -74,8 +74,35 @@ const InvoiceList = () => {
 
                 {/* Content */}
                 {loading ? (
-                    <div className="grid place-items-center h-64">
-                        <div className="h-8 w-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin"></div>
+                    <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl overflow-hidden animate-pulse">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left min-w-[900px]">
+                                <thead>
+                                    <tr className="border-b border-white/10 bg-white/5">
+                                        <th className="px-6 py-4"><div className="h-3 w-20 bg-white/10 rounded"></div></th>
+                                        <th className="px-6 py-4"><div className="h-3 w-24 bg-white/10 rounded"></div></th>
+                                        <th className="px-6 py-4"><div className="h-3 w-16 bg-white/10 rounded"></div></th>
+                                        <th className="px-6 py-4"><div className="h-3 w-16 bg-white/10 rounded"></div></th>
+                                        <th className="px-6 py-4"><div className="h-3 w-20 bg-white/10 rounded"></div></th>
+                                        <th className="px-6 py-4"><div className="h-3 w-12 bg-white/10 rounded"></div></th>
+                                        <th className="px-6 py-4"><div className="h-3 w-16 bg-white/10 rounded"></div></th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/[0.05]">
+                                    {[1, 2, 3, 4, 5].map((row) => (
+                                        <tr key={row}>
+                                            <td className="px-6 py-4"><div className="h-4 w-16 bg-white/5 rounded"></div></td>
+                                            <td className="px-6 py-4"><div className="h-4 w-32 bg-white/5 rounded"></div></td>
+                                            <td className="px-6 py-4"><div className="h-4 w-20 bg-white/5 rounded"></div></td>
+                                            <td className="px-6 py-4"><div className="h-4 w-24 bg-white/5 rounded"></div></td>
+                                            <td className="px-6 py-4"><div className="h-4 w-16 bg-white/5 rounded"></div></td>
+                                            <td className="px-6 py-4"><div className="h-5 w-16 bg-white/5 rounded-full"></div></td>
+                                            <td className="px-6 py-4"><div className="h-5 w-20 bg-white/5 rounded-full"></div></td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 ) : (
                     <InvoiceTable invoices={filteredInvoices} onCreate={() => navigate('/upload-invoice')} />
