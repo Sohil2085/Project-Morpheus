@@ -21,32 +21,28 @@ export const detectFraud = async ({ amount, businessAge, buyerGSTIN, userId, inv
         // --- 1. Invoice Amount Risk ---
         // < 1L -> +5
         // 1L–5L -> +20
-        // 5L–20L -> +50
-        // >20L -> +80
+        // 5L–20L -> +30
+        // >20L -> +40
         if (amount < 100000) {
             riskScore += 5;
             reasons.push("Small Invoice Amount (+5)");
         } else if (amount >= 100000 && amount < 500000) {
-            riskScore += 20;
-            reasons.push("Moderate Invoice Amount (+20)");
+            riskScore += 15;
+            reasons.push("Moderate Invoice Amount (+15)");
         } else if (amount >= 500000 && amount < 2000000) {
-            riskScore += 50;
-            reasons.push("High Invoice Amount (+50)");
+            riskScore += 30;
+            reasons.push("High Invoice Amount (+30)");
         } else {
-            riskScore += 80;
-            reasons.push("Critical Invoice Amount (+80)");
+            riskScore += 40;
+            reasons.push("Very High Invoice Amount (+40)");
         }
 
         // --- 2. Business Age Risk ---
-        // < 6 months -> +25
-        // 6–12 months -> +15
+        // 0 years (< 1 year) -> +25
         // > 1 year -> +0
-        if (businessAge < 6) {
+        if (businessAge < 1) {
             riskScore += 25;
-            reasons.push("New Business Risk (< 6 months) (+25)");
-        } else if (businessAge >= 6 && businessAge < 12) {
-            riskScore += 15;
-            reasons.push("Young Business Risk (6-12 months) (+15)");
+            reasons.push("New Business Risk (< 1 year) (+25)");
         }
 
         // --- 3. Buyer GST Frequency Risk ---

@@ -15,7 +15,7 @@ const Register = () => {
         confirmPassword: '',
         role: 'MSME',
         gstin: '',
-        businessAge: '',
+        businessStartDate: '',
     });
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -33,8 +33,10 @@ const Register = () => {
         if (formData.role === 'MSME') {
             if (formData.gstin.length !== 15) return 'GSTIN must be 15 characters';
         }
-        const age = Number(formData.businessAge);
-        if (isNaN(age) || age < 0 || age > 100) return 'Business Age must be between 0 and 100';
+        if (!formData.businessStartDate) return 'Starting year of the business is required';
+        const startYear = Number(formData.businessStartDate);
+        const currentYear = new Date().getFullYear();
+        if (isNaN(startYear) || startYear < 1900 || startYear > currentYear) return `Invalid starting year. Must be between 1900 and ${currentYear}`;
         return null;
     };
 
@@ -54,7 +56,7 @@ const Register = () => {
                 email: formData.email,
                 password: formData.password,
                 role: formData.role,
-                businessAge: Number(formData.businessAge),
+                business_started_date: formData.businessStartDate,
             };
 
             if (formData.role === 'MSME') {
@@ -180,19 +182,22 @@ const Register = () => {
                     )}
                 </AnimatePresence>
 
-                <div className="input-wrapper">
-                    <Activity size={18} />
-                    <input
-                        type="number"
-                        name="businessAge"
-                        className="form-input"
-                        placeholder="Business Age (Years)"
-                        value={formData.businessAge}
-                        onChange={handleChange}
-                        required
-                        min="0"
-                        max="100"
-                    />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.5rem' }}>
+                    <label style={{ fontSize: '0.85rem', color: '#cbd5e1', marginLeft: '0.3rem' }}>Starting year of the business</label>
+                    <div className="input-wrapper">
+                        <Activity size={18} />
+                        <input
+                            type="number"
+                            name="businessStartDate"
+                            className="form-input"
+                            placeholder="e.g. 2020"
+                            value={formData.businessStartDate}
+                            onChange={handleChange}
+                            required
+                            min="1900"
+                            max={new Date().getFullYear()}
+                        />
+                    </div>
                 </div>
 
                 <button

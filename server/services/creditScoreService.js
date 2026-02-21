@@ -22,7 +22,7 @@ const prisma = new PrismaClient();
  * @param {Object} params
  * @param {string} params.invoiceId - The unique ID of the invoice
  * @param {number} params.amount - The invoice amount
- * @param {number} params.businessAge - The user's business age in months
+ * @param {number} params.businessAge - The user's business age in years
  * @param {number} params.fraudRiskScore - The calculated fraud risk score (0-100)
  * @param {string} params.userId - User ID for history checks
  * @returns {Promise<{ score: number, riskLevel: RiskLevel }>}
@@ -38,14 +38,15 @@ export const calculateCreditScore = async ({ invoiceId, amount, businessAge, fra
         score -= (fraudRiskScore * 0.4);
 
         // 2. Business Age Penalty (< 1 year)
-        if (businessAge < 12) {
+        if (businessAge < 1) {
             score -= 15;
         }
 
-        // 3. High Value Invoice Penalty (> 20L)
-        // 20L = 2,000,000
+        // 3. High Value Invoice Penalty (Tiered: >10L -> -5, >20L -> -10)
         if (amount > 2000000) {
             score -= 10;
+        } else if (amount > 1000000) {
+            score -= 5;
         }
 
         // 4. Flagged Invoice History
@@ -62,7 +63,7 @@ export const calculateCreditScore = async ({ invoiceId, amount, businessAge, fra
         // --- Bonuses ---
 
         // 1. Established Business Bonus (> 3 years)
-        if (businessAge > 36) {
+        if (businessAge > 3) {
             score += 10;
         }
 

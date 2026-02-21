@@ -21,7 +21,7 @@ export const validateInvoice = (data) => {
     const result = invoiceSchema.safeParse(data);
 
     if (!result.success) {
-        const errorMessages = result.error.errors.map((err) => err.message);
+        const errorMessages = (result.error.issues || []).map((err) => err.message);
         return {
             success: false,
             errors: errorMessages,
