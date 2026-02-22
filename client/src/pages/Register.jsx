@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { User, Mail, Lock, Briefcase, FileText, Activity, Eye, EyeOff } from 'lucide-react';
+import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { register } from '../api/authApi';
 import AuthLayout from '../components/AuthLayout';
 import toast from 'react-hot-toast';
@@ -13,9 +12,6 @@ const Register = () => {
         email: '',
         password: '',
         confirmPassword: '',
-        role: 'MSME',
-        gstin: '',
-        businessStartDate: '',
     });
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -30,13 +26,6 @@ const Register = () => {
         if (!/\S+@\S+\.\S+/.test(formData.email)) return 'Invalid email format';
         if (formData.password.length < 6) return 'Password must be at least 6 characters';
         if (formData.password !== formData.confirmPassword) return 'Passwords do not match';
-        if (formData.role === 'MSME') {
-            if (formData.gstin.length !== 15) return 'GSTIN must be 15 characters';
-        }
-        if (!formData.businessStartDate) return 'Starting year of the business is required';
-        const startYear = Number(formData.businessStartDate);
-        const currentYear = new Date().getFullYear();
-        if (isNaN(startYear) || startYear < 1900 || startYear > currentYear) return `Invalid starting year. Must be between 1900 and ${currentYear}`;
         return null;
     };
 
@@ -55,13 +44,7 @@ const Register = () => {
                 name: formData.name,
                 email: formData.email,
                 password: formData.password,
-                role: formData.role,
-                business_started_date: formData.businessStartDate,
             };
-
-            if (formData.role === 'MSME') {
-                payload.gstin = formData.gstin;
-            }
 
             await register(payload);
             toast.success('Account created successfully! Please sign in.');
@@ -146,60 +129,6 @@ const Register = () => {
                     </button>
                 </div>
 
-                <div className="input-wrapper">
-                    <Briefcase size={18} />
-                    <select
-                        name="role"
-                        value={formData.role}
-                        onChange={handleChange}
-                        className="form-input"
-                    >
-                        <option value="MSME" style={{ color: 'black' }}>MSME (Borrower)</option>
-                        <option value="LENDER" style={{ color: 'black' }}>Lender (Investor)</option>
-                    </select>
-                </div>
-
-                <AnimatePresence>
-                    {formData.role === 'MSME' && (
-                        <motion.div
-                            className="input-wrapper"
-                            initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                            animate={{ opacity: 1, height: 'auto', marginTop: 0 }}
-                            exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                        >
-                            <FileText size={18} />
-                            <input
-                                type="text"
-                                name="gstin"
-                                className="form-input"
-                                placeholder="GSTIN (15 characters)"
-                                value={formData.gstin}
-                                onChange={handleChange}
-                                required
-                                maxLength={15}
-                            />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.5rem' }}>
-                    <label style={{ fontSize: '0.85rem', color: '#cbd5e1', marginLeft: '0.3rem' }}>Starting year of the business</label>
-                    <div className="input-wrapper">
-                        <Activity size={18} />
-                        <input
-                            type="number"
-                            name="businessStartDate"
-                            className="form-input"
-                            placeholder="e.g. 2020"
-                            value={formData.businessStartDate}
-                            onChange={handleChange}
-                            required
-                            min="1900"
-                            max={new Date().getFullYear()}
-                        />
-                    </div>
-                </div>
-
                 <button
                     type="submit"
                     className="btn-primary"
@@ -217,3 +146,4 @@ const Register = () => {
 };
 
 export default Register;
+
