@@ -12,7 +12,7 @@ model User {
   name         String
   email        String      @unique
   password     String
-  role         Role        @default(USER)
+  role         Role        @default(MSME)
   kycStatus    KycStatus   @default(NOT_SUBMITTED)
   riskScore    Int?
   isActive     Boolean     @default(true)
@@ -132,7 +132,6 @@ enum Role {
   MSME
   LENDER
   ADMIN
-  USER
 }
 
 enum KycStatus {
