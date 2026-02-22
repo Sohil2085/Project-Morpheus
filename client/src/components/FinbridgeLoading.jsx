@@ -88,9 +88,19 @@ const FinbridgeLoading = ({ userName }) => {
                 </div>
 
                 {/* Corner badge */}
-                <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/20">
-                    <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse" />
-                    <span className="text-[11px] font-medium text-blue-300 tracking-wide">AI Analyzing</span>
+                <div className="absolute top-6 right-6 z-30">
+                   <div className="inline-flex items-center gap-2
+               rounded-full
+               bg-slate-950/90
+               border border-blue-400/40
+               px-4 py-1.5
+               text-sm font-semibold text-blue-200
+               shadow-[0_0_15px_rgba(59,130,246,0.25)]">
+
+  <span className="h-2 w-2 rounded-full bg-blue-400 animate-pulse shrink-0 relative top-[4px]" />
+
+  AI Analyzing
+</div>
                 </div>
             </div>
 
