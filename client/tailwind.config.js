@@ -26,7 +26,26 @@ export default {
             },
             fontFamily: {
                 sans: ['Outfit', 'sans-serif'],
-            }
+            },
+            keyframes: {
+                scan: {
+                    '0%':   { transform: 'translateY(-100%)' },
+                    '100%': { transform: 'translateY(1400%)' },
+                },
+                float: {
+                    '0%, 100%': { transform: 'translateY(0px)' },
+                    '50%':      { transform: 'translateY(-8px)' },
+                },
+                'fade-in': {
+                    '0%':   { opacity: '0', transform: 'translateY(6px)' },
+                    '100%': { opacity: '1', transform: 'translateY(0)' },
+                },
+            },
+            animation: {
+                scan:      'scan 2.4s linear infinite',
+                float:     'float 4s ease-in-out infinite',
+                'fade-in': 'fade-in 0.4s ease-out both',
+            },
         },
     },
     plugins: [],
