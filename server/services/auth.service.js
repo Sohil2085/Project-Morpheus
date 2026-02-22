@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export const signup = async (userData) => {
-    const { name, email, password } = userData;
+    const { name, email, password, role } = userData;
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
@@ -18,6 +18,7 @@ export const signup = async (userData) => {
             name,
             email,
             password: hashedPassword,
+            role: role || 'MSME',
         }
     });
 

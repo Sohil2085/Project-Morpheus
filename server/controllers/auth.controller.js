@@ -2,7 +2,7 @@ import * as authService from '../services/auth.service.js';
 
 export const signup = async (req, res, next) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, role } = req.body;
 
         if (!name || !email || !password) {
             const error = new Error('Name, email, and password are required');
@@ -10,7 +10,12 @@ export const signup = async (req, res, next) => {
             throw error;
         }
 
-        const { user, token } = await authService.signup({ name, email, password });
+        const validRoles = ['MSME', 'LENDER'];
+        const assignedRole = role && validRoles.includes(role.toUpperCase())
+            ? role.toUpperCase()
+            : 'MSME';
+
+        const { user, token } = await authService.signup({ name, email, password, role: assignedRole });
 
         res.status(201).json({
             success: true,
