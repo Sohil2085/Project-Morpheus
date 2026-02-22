@@ -12,7 +12,10 @@ model User {
   name         String
   email        String      @unique
   password     String
-  role         Role
+  role         Role        @default(USER)
+  kycStatus    KycStatus   @default(NOT_SUBMITTED)
+  riskScore    Int?
+  isActive     Boolean     @default(true)
   gstin        String?
   business_age Int?
   created_at   DateTime    @default(now())
@@ -20,9 +23,34 @@ model User {
   bids         Bid[]       @relation("UserBids")
   fraud_flags  FraudFlag[]
   invoices     Invoice[]   @relation("UserInvoices")
+  kyc          KYC?
 
   @@index([email])
   @@map("users")
+}
+
+model KYC {
+  id                String    @id @default(uuid())
+  userId            String    @unique
+  gstNumber         String
+  legalName         String
+  businessName      String
+  businessStartDate DateTime
+  businessAddress   String
+  turnover          Float
+  stateCode         String
+  panNumber         String
+  gstCertificateUrl String?
+  status            KycStatus @default(IN_PROGRESS)
+  adminRemark       String?
+  submittedAt       DateTime  @default(now())
+  reviewedAt        DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("kyc_records")
 }
 
 model Invoice {
@@ -104,6 +132,14 @@ enum Role {
   MSME
   LENDER
   ADMIN
+  USER
+}
+
+enum KycStatus {
+  NOT_SUBMITTED
+  IN_PROGRESS
+  VERIFIED
+  REJECTED
 }
 
 enum InvoiceStatus {

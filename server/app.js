@@ -1,7 +1,10 @@
 import express from 'express';
 import cors from 'cors';
-import authRoutes from './routes/authRoutes.js';
+import authRoutes from './routes/auth.routes.js';
 import invoiceRoutes from './routes/invoiceRoutes.js';
+import kycRoutes from './routes/kyc.routes.js';
+import adminRoutes from './routes/admin.routes.js';
+import errorHandler from './middleware/error.middleware.js';
 const app = express();
 
 // Middleware
@@ -19,11 +22,15 @@ app.use((req, res, next) => {
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/kyc', kycRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/invoices', invoiceRoutes);
 
 // Root route
 app.get('/', (req, res) => {
     res.send('API is running...');
 });
+
+app.use(errorHandler);
 
 export default app;
