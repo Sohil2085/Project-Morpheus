@@ -56,3 +56,33 @@ export const login = async (req, res, next) => {
         next(error);
     }
 };
+
+export const getMe = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const { PrismaClient } = await import('@prisma/client');
+        const prisma = new PrismaClient();
+
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                kycStatus: true,
+                riskScore: true,
+                business_age: true,
+                gstin: true
+            }
+        });
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        res.status(200).json({ success: true, user });
+    } catch (error) {
+        next(error);
+    }
+};

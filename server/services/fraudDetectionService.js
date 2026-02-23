@@ -39,10 +39,14 @@ export const detectFraud = async ({ amount, businessAge, buyerGSTIN, userId, inv
 
         // --- 2. Business Age Risk ---
         // 0 years (< 1 year) -> +25
+        // 1 year -> +15
         // > 1 year -> +0
         if (businessAge < 1) {
             riskScore += 25;
             reasons.push("New Business Risk (< 1 year) (+25)");
+        } else if (businessAge === 1) {
+            riskScore += 15;
+            reasons.push("Early Stage Business Risk (1 year) (+15)");
         }
 
         // --- 3. Buyer GST Frequency Risk ---

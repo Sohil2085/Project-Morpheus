@@ -159,13 +159,13 @@ const InvoiceDetailPanel = ({ invoice, onClose }) => {
         <div className="fixed inset-0 z-50 flex justify-end">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={onClose} />
             <div className="relative w-full max-w-2xl h-full bg-[#0F172A] border-l border-cardBorder shadow-2xl flex flex-col animate-slide-in-right overflow-y-auto">
-                
+
                 {/* Header */}
                 <div className="p-6 border-b border-cardBorder flex items-start justify-between bg-bg0/50 backdrop-blur-md sticky top-0 z-10">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
                             <span className="text-xs font-mono text-accent bg-accent/10 px-2 py-0.5 rounded border border-accent/20">#{invoice.id}</span>
-                            <span className="text-xs text-muted flex items-center gap-1"><Clock size={12}/> Due {new Date(invoice.dueDate).toLocaleDateString()}</span>
+                            <span className="text-xs text-muted flex items-center gap-1"><Clock size={12} /> Due {new Date(invoice.dueDate).toLocaleDateString()}</span>
                         </div>
                         <h2 className="text-2xl font-bold text-white leading-tight">{invoice.msmeName}</h2>
                         <div className="flex items-center gap-2 mt-2 text-sm text-muted">
@@ -209,7 +209,7 @@ const InvoiceDetailPanel = ({ invoice, onClose }) => {
                             <div className="flex items-center justify-between border-t border-cardBorder pt-4">
                                 <span className="text-sm text-muted">Fraud Check</span>
                                 <span className={`flex items-center gap-1.5 text-sm font-semibold ${details.fraudCheck.status === 'PASSED' ? 'text-success' : 'text-warning'}`}>
-                                    {details.fraudCheck.status === 'PASSED' ? <CheckCircle size={14} /> : <AlertOctagon size={14} />} 
+                                    {details.fraudCheck.status === 'PASSED' ? <CheckCircle size={14} /> : <AlertOctagon size={14} />}
                                     {details.fraudCheck.status}
                                 </span>
                             </div>
@@ -303,7 +303,7 @@ const OverviewSection = () => (
                     <span className="text-xs px-2.5 py-1 rounded-full bg-success/10 text-success border border-success/20">+8.7% avg</span>
                 </div>
                 <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                         <LineChart data={DUMMY_PORTFOLIO_TREND}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
                             <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
@@ -329,7 +329,7 @@ const OverviewSection = () => (
                 <h2 className="text-lg font-semibold text-white mb-1">Risk Distribution</h2>
                 <p className="text-xs text-muted mb-6">Current portfolio breakdown</p>
                 <div className="h-52 relative">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                         <PieChart>
                             <Pie
                                 data={DUMMY_RISK_DISTRIBUTION}
@@ -433,11 +433,10 @@ const MarketplaceSection = ({ onSelectInvoice }) => {
                         <button
                             key={r}
                             onClick={() => setRiskFilter(r)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
-                                riskFilter === r
-                                    ? 'bg-accent/20 border-accent/50 text-accent'
-                                    : 'border-cardBorder bg-card text-muted hover:text-white hover:border-accent/30'
-                            }`}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${riskFilter === r
+                                ? 'bg-accent/20 border-accent/50 text-accent'
+                                : 'border-cardBorder bg-card text-muted hover:text-white hover:border-accent/30'
+                                }`}
                         >
                             {r}
                         </button>
@@ -492,7 +491,7 @@ const MarketplaceSection = ({ onSelectInvoice }) => {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center gap-2">
-                                            <button 
+                                            <button
                                                 onClick={() => onSelectInvoice(inv)}
                                                 className="px-3 py-1.5 text-xs font-medium rounded-lg border border-cardBorder text-muted hover:text-white hover:border-accent/40 transition-all flex items-center gap-1">
                                                 <Eye size={13} /> View
@@ -624,11 +623,10 @@ const MeetingsSection = () => (
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <button
                                         disabled={m.recordingStatus !== 'AVAILABLE'}
-                                        className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-all flex items-center gap-1.5 ${
-                                            m.recordingStatus === 'AVAILABLE'
-                                                ? 'border-accent/40 text-accent hover:bg-accent/10 cursor-pointer'
-                                                : 'border-cardBorder text-muted cursor-not-allowed opacity-50'
-                                        }`}
+                                        className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-all flex items-center gap-1.5 ${m.recordingStatus === 'AVAILABLE'
+                                            ? 'border-accent/40 text-accent hover:bg-accent/10 cursor-pointer'
+                                            : 'border-cardBorder text-muted cursor-not-allowed opacity-50'
+                                            }`}
                                     >
                                         <Video size={13} />
                                         {m.recordingStatus === 'AVAILABLE' ? 'View Recording' : 'Processing...'}
@@ -675,7 +673,7 @@ const AnalyticsSection = () => (
                 <h3 className="text-lg font-semibold text-white mb-1">Default Probability by Risk Tier</h3>
                 <p className="text-xs text-muted mb-6">Historical default rates per risk classification</p>
                 <div className="h-56">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                         <BarChart data={DUMMY_DEFAULT_PROB} barSize={48}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} vertical={false} />
                             <XAxis dataKey="tier" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
@@ -699,7 +697,7 @@ const AnalyticsSection = () => (
                 <h3 className="text-lg font-semibold text-white mb-1">Sector Allocation</h3>
                 <p className="text-xs text-muted mb-6">Investment distribution by industry</p>
                 <div className="h-56 relative">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                         <PieChart>
                             <Pie
                                 data={DUMMY_SECTOR_DATA}
@@ -743,7 +741,7 @@ const AnalyticsSection = () => (
                 </div>
             </div>
             <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                     <LineChart data={DUMMY_ROI_BENCHMARK}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
                         <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
@@ -788,12 +786,12 @@ const LenderDashboard = () => {
 
     const renderSection = () => {
         switch (activeTab) {
-            case 'overview':    return <OverviewSection />;
+            case 'overview': return <OverviewSection />;
             case 'marketplace': return <MarketplaceSection onSelectInvoice={setSelectedInvoice} />;
             case 'investments': return <InvestmentsSection />;
-            case 'meetings':    return <MeetingsSection />;
-            case 'analytics':   return <AnalyticsSection />;
-            default:            return <OverviewSection />;
+            case 'meetings': return <MeetingsSection />;
+            case 'analytics': return <AnalyticsSection />;
+            default: return <OverviewSection />;
         }
     };
 
@@ -801,9 +799,9 @@ const LenderDashboard = () => {
         <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6 animate-fade-in pb-20 relative">
             {/* Invoice Detail Panel Overlay */}
             {selectedInvoice && (
-                <InvoiceDetailPanel 
-                    invoice={selectedInvoice} 
-                    onClose={() => setSelectedInvoice(null)} 
+                <InvoiceDetailPanel
+                    invoice={selectedInvoice}
+                    onClose={() => setSelectedInvoice(null)}
                 />
             )}
             {/* Page Header */}
@@ -831,11 +829,10 @@ const LenderDashboard = () => {
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`flex items-center gap-2 px-5 py-3.5 text-sm font-medium border-b-2 transition-all whitespace-nowrap ${
-                                    isActive
-                                        ? 'border-accent text-accent'
-                                        : 'border-transparent text-muted hover:text-white hover:border-muted/30'
-                                }`}
+                                className={`flex items-center gap-2 px-5 py-3.5 text-sm font-medium border-b-2 transition-all whitespace-nowrap ${isActive
+                                    ? 'border-accent text-accent'
+                                    : 'border-transparent text-muted hover:text-white hover:border-muted/30'
+                                    }`}
                             >
                                 <Icon size={15} />
                                 {tab.label}

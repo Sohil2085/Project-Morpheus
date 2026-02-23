@@ -26,14 +26,18 @@ export const createInvoice = async (req, res) => {
             return res.status(403).json({ error: 'Access Denied', message: 'Only MSME users can create invoices' });
         }
 
-        // Get user's business age for services
+        // Get user's business age and KYC status for services
         const user = await prisma.user.findUnique({
             where: { id: userId },
-            select: { business_age: true }
+            select: { business_age: true, kycStatus: true }
         });
 
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
+        }
+
+        if (user.kycStatus !== 'VERIFIED') {
+            return res.status(403).json({ error: 'Access Denied', message: 'You must complete and verify your KYC before creating invoices' });
         }
 
         // Use business age directly from schema
