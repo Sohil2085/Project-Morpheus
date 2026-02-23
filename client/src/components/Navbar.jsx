@@ -84,12 +84,14 @@ const Navbar = () => {
                         <NavLink to="/msme" end className={linkClass}>Dashboard</NavLink>
                         <NavLink to="/upload-invoice" className={linkClass}>Upload Invoice</NavLink>
                         <NavLink to="/invoices" className={linkClass}>Invoices</NavLink>
+                        <NavLink to="/profile" className={linkClass}>Profile</NavLink>
                     </>
                 )}
                 {user.role === 'LENDER' && (
                     <>
                         <NavLink to="/lender" end className={linkClass}>Dashboard</NavLink>
                         <NavLink to="/analytics" className={linkClass}>Analytics</NavLink>
+                        <NavLink to="/profile" className={linkClass}>Profile</NavLink>
                     </>
                 )}
                 <button

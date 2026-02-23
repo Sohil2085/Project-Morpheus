@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 export const getPendingKyc = async (req, res, next) => {
     try {
         const pendingKycList = await prisma.kYC.findMany({
-            where: { status: 'IN_PROGRESS' },
+            orderBy: { createdAt: 'desc' },
             include: {
                 user: {
                     select: { id: true, name: true, email: true, riskScore: true }
@@ -86,6 +86,33 @@ export const rejectKyc = async (req, res, next) => {
             success: true,
             message: 'KYC Rejected Successfully',
             data: result
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getDashboardStats = async (req, res, next) => {
+    try {
+        const totalMsmes = await prisma.user.count({ where: { role: 'MSME' } });
+        const totalLenders = await prisma.user.count({ where: { role: 'LENDER' } });
+        const totalInvoices = await prisma.invoice.count();
+
+        const fundingAgg = await prisma.transaction.aggregate({
+            _sum: { funded_amount: true },
+            where: { status: 'COMPLETED' }
+        });
+
+        const totalFunding = fundingAgg._sum.funded_amount || 0;
+
+        res.status(200).json({
+            success: true,
+            data: {
+                totalMsmes,
+                totalLenders,
+                totalInvoices,
+                totalFunding
+            }
         });
     } catch (error) {
         next(error);

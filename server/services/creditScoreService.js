@@ -37,10 +37,13 @@ export const calculateCreditScore = async ({ invoiceId, amount, businessAge, fra
         // Deduct fraudScore * 0.4
         score -= (fraudRiskScore * 0.4);
 
-        // 2. Business Age Penalty (< 1 year)
+        // 2. Business Age Penalty/Bonus
         if (businessAge < 1) {
-            score -= 15;
+            score -= 20; // Increased penalty for very new businesses
+        } else if (businessAge === 1) {
+            score -= 10;
         }
+        // If 2 years, no penalty/bonus.
 
         // 3. High Value Invoice Penalty (Tiered: >10L -> -5, >20L -> -10)
         if (amount > 2000000) {
@@ -62,9 +65,11 @@ export const calculateCreditScore = async ({ invoiceId, amount, businessAge, fra
 
         // --- Bonuses ---
 
-        // 1. Established Business Bonus (> 3 years)
-        if (businessAge > 3) {
-            score += 10;
+        // 1. Established Business Bonus 
+        if (businessAge >= 5) {
+            score += 20; // Highly established
+        } else if (businessAge > 2) {
+            score += 10; // Growing business (3-4 years)
         }
 
         // 2. Successful Settlement History

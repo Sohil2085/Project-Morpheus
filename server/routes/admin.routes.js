@@ -7,6 +7,7 @@ import { requireRole } from '../middleware/role.middleware.js';
 router.use(requireAuth);
 router.use(requireRole(['ADMIN']));
 
+router.get('/stats', adminController.getDashboardStats);
 router.get('/kyc/pending', adminController.getPendingKyc);
 router.post('/kyc/:id/approve', adminController.approveKyc);
 router.post('/kyc/:id/reject', adminController.rejectKyc);

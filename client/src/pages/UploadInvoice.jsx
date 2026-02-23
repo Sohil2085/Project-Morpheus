@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Save, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { createInvoice } from '../api/invoiceApi';
 import toast from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
 
 const UploadInvoice = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         buyerGstin: '',
@@ -39,6 +41,34 @@ const UploadInvoice = () => {
             setLoading(false);
         }
     };
+
+    if (user?.kycStatus !== 'VERIFIED') {
+        return (
+            <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                <div className="max-w-md w-full bg-slate-900 border border-amber-500/20 rounded-2xl p-8 text-center space-y-4 shadow-2xl">
+                    <div className="w-16 h-16 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <AlertTriangle className="text-amber-500" size={32} />
+                    </div>
+                    <h2 className="text-2xl font-semibold text-white">Verification Required</h2>
+                    <p className="text-white/60 text-sm leading-relaxed">You must complete your business KYC verification before you can upload and create new invoices.</p>
+                    <div className="pt-4 flex flex-col gap-3">
+                        <button
+                            onClick={() => navigate('/kyc')}
+                            className="w-full bg-amber-600 hover:bg-amber-500 text-white px-6 py-2.5 rounded-xl font-medium transition-colors"
+                        >
+                            Complete KYC
+                        </button>
+                        <button
+                            onClick={() => navigate('/msme')}
+                            className="w-full bg-white/5 hover:bg-white/10 text-white px-6 py-2.5 rounded-xl font-medium transition-colors"
+                        >
+                            Go Back
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen relative overflow-hidden bg-slate-950">

@@ -13,6 +13,9 @@ import AdminDashboard from './pages/AdminDashboard';
 
 import Landing from './pages/Landing'; // Import Landing page
 import InvoiceList from './pages/InvoiceList';
+import KycForm from './pages/KycForm';
+import Profile from './pages/Profile';
+import AdminKycPage from './pages/AdminKycPage';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading, isAuthenticated } = useAuth();
@@ -129,6 +132,11 @@ function App() {
               <InvoiceList />
             </ProtectedRoute>
           } />
+          <Route path="/kyc" element={
+            <ProtectedRoute allowedRoles={['MSME']}>
+              <KycForm />
+            </ProtectedRoute>
+          } />
 
           {/* Protected Routes - Lender */}
           <Route path="/lender" element={
@@ -143,11 +151,21 @@ function App() {
               <AdminDashboard />
             </ProtectedRoute>
           } />
+          <Route path="/admin/kyc" element={
+            <ProtectedRoute allowedRoles={['ADMIN']}>
+              <AdminKycPage />
+            </ProtectedRoute>
+          } />
 
           {/* Shared Protected Routes */}
           <Route path="/analytics" element={
             <ProtectedRoute allowedRoles={['MSME', 'LENDER']}>
               <Analytics />
+            </ProtectedRoute>
+          } />
+          <Route path="/profile" element={
+            <ProtectedRoute allowedRoles={['MSME', 'LENDER']}>
+              <Profile />
             </ProtectedRoute>
           } />
 

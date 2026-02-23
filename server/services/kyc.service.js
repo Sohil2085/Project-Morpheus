@@ -32,6 +32,15 @@ export const submitKyc = async (userId, kycData) => {
         legalNameMismatch
     });
 
+    const currentDate = new Date();
+    const startDate = new Date(businessStartDate);
+    let businessAgeYears = currentDate.getFullYear() - startDate.getFullYear();
+    const m = currentDate.getMonth() - startDate.getMonth();
+    if (m < 0 || (m === 0 && currentDate.getDate() < startDate.getDate())) {
+        businessAgeYears--;
+    }
+    const safeBusinessAge = Math.max(0, businessAgeYears);
+
     const result = await prisma.$transaction(async (tx) => {
         let kycRecord;
         if (existingKyc) {
@@ -72,7 +81,8 @@ export const submitKyc = async (userId, kycData) => {
             where: { id: userId },
             data: {
                 kycStatus: 'IN_PROGRESS',
-                riskScore
+                riskScore,
+                business_age: safeBusinessAge
             }
         });
 
