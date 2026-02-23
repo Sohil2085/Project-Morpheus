@@ -82,7 +82,8 @@ export const submitKyc = async (userId, kycData) => {
             data: {
                 kycStatus: 'IN_PROGRESS',
                 riskScore,
-                business_age: safeBusinessAge
+                business_age: safeBusinessAge,
+                gstin: kycData.gstNumber,
             }
         });
 

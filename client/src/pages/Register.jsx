@@ -81,35 +81,35 @@ const Register = () => {
             {/* Role selection */}
             <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
                 {ROLES.map(({ value, label, description, Icon }) => {
-                    const isSelected = formData.role === value;
-                    return (
-                        <button
-                            key={value}
-                            type="button"
-                            onClick={() => setFormData({ ...formData, role: value })}
-                            style={{
-                                flex: 1,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                gap: '0.4rem',
-                                padding: '0.85rem 0.5rem',
-                                borderRadius: '12px',
-                                border: isSelected
-                                    ? '1.5px solid #6366f1'
-                                    : '1.5px solid rgba(255,255,255,0.08)',
-                                background: isSelected
-                                    ? 'rgba(99,102,241,0.12)'
-                                    : 'rgba(255,255,255,0.03)',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease',
-                                boxShadow: isSelected ? '0 0 12px rgba(99,102,241,0.3)' : 'none',
-                            }}
-                        >
-                            <Icon
-                                size={22}
-                                style={{ color: isSelected ? '#6366f1' : 'rgba(255,255,255,0.5)' }}
-                            />
+                            const isSelected = formData.role === value;
+                            return (
+                                <button
+                                    key={value}
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, role: value })}
+                                    style={{
+                                        flex: 1,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        gap: '0.4rem',
+                                        padding: '0.85rem 0.5rem',
+                                        borderRadius: '12px',
+                                        border: isSelected
+                                            ? '1.5px solid #6366f1'
+                                            : '1.5px solid rgba(255,255,255,0.08)',
+                                        background: isSelected
+                                            ? 'rgba(99,102,241,0.12)'
+                                            : 'rgba(255,255,255,0.03)',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s ease',
+                                        boxShadow: isSelected ? '0 0 12px rgba(99,102,241,0.3)' : 'none',
+                                    }}
+                                >
+                                    {Icon && <Icon
+                                        size={22}
+                                        style={{ color: isSelected ? '#6366f1' : 'rgba(255,255,255,0.5)' }}
+                                    />}
                             <span style={{
                                 fontSize: '0.85rem',
                                 fontWeight: 600,

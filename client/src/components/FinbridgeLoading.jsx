@@ -62,14 +62,14 @@ const FinbridgeLoading = ({ userName }) => {
                     </div>
                     {/* mock KPI row */}
                     <div className="grid grid-cols-4 gap-3 pt-2">
-                        {[1,2,3,4].map(i => (
+                        {[1, 2, 3, 4].map(i => (
                             <div key={i} className="h-16 rounded-xl border border-white/5 bg-white/5" />
                         ))}
                     </div>
                     {/* mock chart bar */}
                     <div className="h-28 rounded-xl border border-white/5 bg-white/5">
                         <div className="flex items-end gap-2 h-full px-4 pb-3 pt-6">
-                            {[60,85,45,90,70,55,80].map((h, i) => (
+                            {[60, 85, 45, 90, 70, 55, 80].map((h, i) => (
                                 <div
                                     key={i}
                                     className="flex-1 rounded-t bg-blue-500/20"
@@ -89,7 +89,7 @@ const FinbridgeLoading = ({ userName }) => {
 
                 {/* Corner badge */}
                 <div className="absolute top-6 right-6 z-30">
-                   <div className="inline-flex items-center gap-2
+                    <div className="inline-flex items-center gap-2
                rounded-full
                bg-slate-950/90
                border border-blue-400/40
@@ -97,10 +97,10 @@ const FinbridgeLoading = ({ userName }) => {
                text-sm font-semibold text-blue-200
                shadow-[0_0_15px_rgba(59,130,246,0.25)]">
 
-  <span className="h-2 w-2 rounded-full bg-blue-400 animate-pulse shrink-0 relative top-[4px]" />
+                        <span className="h-2 w-2 rounded-full bg-blue-400 animate-pulse shrink-0 relative top-[4px]" />
 
-  AI Analyzing
-</div>
+                        Analyzing
+                    </div>
                 </div>
             </div>
 
