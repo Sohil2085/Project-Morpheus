@@ -20,12 +20,14 @@ import {
     Plus,
     FileSearch,
     Download,
-    ChevronRight
+    ChevronRight,
+    Loader2
 } from 'lucide-react';
 import StatCard from '../components/StatCard';
-import { getInvoiceStats } from '../api/invoiceApi';
+import { getInvoiceStats, getInvoices } from '../api/invoiceApi';
 import { useAuth } from '../context/AuthContext';
 import FinbridgeLoading from '../components/FinbridgeLoading';
+import toast from 'react-hot-toast';
 
 const MSMEDashboard = () => {
     const navigate = useNavigate();
@@ -33,6 +35,7 @@ const MSMEDashboard = () => {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [visible, setVisible] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
 
     useEffect(() => {
         const loadStats = async () => {
@@ -49,6 +52,53 @@ const MSMEDashboard = () => {
         };
         loadStats();
     }, []);
+
+    const handleExportReport = async () => {
+        setIsExporting(true);
+        try {
+            const invoices = await getInvoices();
+            if (!invoices || invoices.length === 0) {
+                toast.error("No data available to export.");
+                return;
+            }
+
+            // Create CSV
+            const headers = ['Invoice ID', 'Amount', 'Due Date', 'Buyer GSTIN', 'Status', 'Risk Level', 'Credit Score', 'Created At'];
+            const csvRows = [headers.join(',')];
+
+            for (const inv of invoices) {
+                const row = [
+                    inv.id || '',
+                    inv.amount || 0,
+                    inv.dueDate ? new Date(inv.dueDate).toLocaleDateString() : '',
+                    inv.buyerGstin || '',
+                    inv.status || '',
+                    inv.riskLevel || 'UNKNOWN',
+                    inv.creditScore !== undefined ? inv.creditScore : '',
+                    inv.createdAt ? new Date(inv.createdAt).toLocaleDateString() : ''
+                ];
+                // Escape commas and quotes
+                const escapedRow = row.map(val => `"${String(val).replace(/"/g, '""')}"`);
+                csvRows.push(escapedRow.join(','));
+            }
+
+            const csvContent = "data:text/csv;charset=utf-8," + csvRows.join('\n');
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', `monthly_summary_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            toast.success("Report exported successfully!");
+        } catch (error) {
+            console.error("Export error:", error);
+            toast.error("Failed to export report.");
+        } finally {
+            setIsExporting(false);
+        }
+    };
 
     return (
         <div className="min-h-screen relative overflow-hidden bg-slate-950">
@@ -280,19 +330,20 @@ const MSMEDashboard = () => {
                             </button>
 
                             <button
-                                disabled={user?.kycStatus !== 'VERIFIED'}
-                                className={`group text-left p-5 rounded-2xl border border-white/10 bg-transparent transition-all duration-200 ${user?.kycStatus === 'VERIFIED'
+                                onClick={handleExportReport}
+                                disabled={user?.kycStatus !== 'VERIFIED' || isExporting}
+                                className={`group text-left p-5 rounded-2xl border border-white/10 bg-transparent transition-all duration-200 ${user?.kycStatus === 'VERIFIED' && !isExporting
                                     ? 'hover:bg-white/5 hover:-translate-y-0.5'
                                     : 'opacity-50 cursor-not-allowed'
                                     }`}
                             >
                                 <div className="flex items-start justify-between mb-4">
                                     <div className="h-10 w-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-                                        <Download size={18} />
+                                        {isExporting ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
                                     </div>
                                     <ChevronRight size={15} className="text-white/20 group-hover:text-white/50 transition-colors mt-1" />
                                 </div>
-                                <h3 className="font-medium text-white text-sm mb-1">Export Report</h3>
+                                <h3 className="font-medium text-white text-sm mb-1">{isExporting ? 'Exporting...' : 'Export Report'}</h3>
                                 <p className="text-xs text-white/50 leading-relaxed">Download monthly summary</p>
                             </button>
                         </div>
