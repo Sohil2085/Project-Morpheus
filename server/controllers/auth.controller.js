@@ -73,7 +73,10 @@ export const getMe = async (req, res, next) => {
                 kycStatus: true,
                 riskScore: true,
                 business_age: true,
-                gstin: true
+                gstin: true,
+                kyc: {
+                    select: { gstNumber: true }
+                }
             }
         });
 
@@ -81,7 +84,14 @@ export const getMe = async (req, res, next) => {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
 
-        res.status(200).json({ success: true, user });
+        // Prefer gstin on user row; fall back to KYC record (covers pre-fix submissions)
+        const { kyc, ...userFields } = user;
+        const resolvedUser = {
+            ...userFields,
+            gstin: userFields.gstin || kyc?.gstNumber || null,
+        };
+
+        res.status(200).json({ success: true, user: resolvedUser });
     } catch (error) {
         next(error);
     }

@@ -93,7 +93,7 @@ const InvoicesLoading = ({ isExiting = false }) => {
                     <div className="inline-flex items-center gap-2 rounded-full bg-slate-950/60 border border-blue-400/30 backdrop-blur-sm px-3 py-1 shrink-0">
                         <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-ai-dot" />
                         <span className="text-xs font-medium text-blue-200 tracking-wide">
-                            AI Reviewing Invoices...
+                            Reviewing Invoices...
                         </span>
                     </div>
                 </div>

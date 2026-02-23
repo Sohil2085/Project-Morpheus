@@ -1,5 +1,6 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import ProfileBadge from './ProfileBadge';
 import '../styles/landing.css';
 
 const Navbar = () => {
@@ -84,22 +85,17 @@ const Navbar = () => {
                         <NavLink to="/msme" end className={linkClass}>Dashboard</NavLink>
                         <NavLink to="/upload-invoice" className={linkClass}>Upload Invoice</NavLink>
                         <NavLink to="/invoices" className={linkClass}>Invoices</NavLink>
-                        <NavLink to="/profile" className={linkClass}>Profile</NavLink>
                     </>
                 )}
                 {user.role === 'LENDER' && (
                     <>
                         <NavLink to="/lender" end className={linkClass}>Dashboard</NavLink>
                         <NavLink to="/analytics" className={linkClass}>Analytics</NavLink>
-                        <NavLink to="/profile" className={linkClass}>Profile</NavLink>
                     </>
                 )}
-                <button
-                    onClick={handleLogout}
-                    className="ml-2 px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-rose-400 hover:bg-rose-500/10 transition-all"
-                >
-                    Logout
-                </button>
+                <div className="ml-3">
+                    <ProfileBadge user={user} onLogout={handleLogout} profilePath="/profile" />
+                </div>
             </div>
         </nav>
     );

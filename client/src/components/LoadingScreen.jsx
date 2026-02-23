@@ -1,11 +1,10 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 
 const LoadingScreen = ({ isLoading }) => {
     return (
         <AnimatePresence mode="wait">
             {isLoading && (
-                <motion.div
+                <div
                     style={{
                         position: 'fixed',
                         inset: 0,
@@ -17,9 +16,6 @@ const LoadingScreen = ({ isLoading }) => {
                         zIndex: 9999,
                         pointerEvents: 'all'
                     }}
-                    initial={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.8, ease: "easeInOut" }}
                 >
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
@@ -37,7 +33,7 @@ const LoadingScreen = ({ isLoading }) => {
                             Premium Invoice Financing
                         </p>
                     </motion.div>
-                </motion.div>
+                </div>
             )}
         </AnimatePresence>
     );
