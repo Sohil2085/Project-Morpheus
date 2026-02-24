@@ -4,6 +4,7 @@ import authRoutes from './routes/auth.routes.js';
 import invoiceRoutes from './routes/invoiceRoutes.js';
 import kycRoutes from './routes/kyc.routes.js';
 import adminRoutes from './routes/admin.routes.js';
+import featureRoutes from './routes/feature.routes.js';
 import errorHandler from './middleware/error.middleware.js';
 const app = express();
 
@@ -25,6 +26,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/kyc', kycRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/invoices', invoiceRoutes);
+app.use('/api/features', featureRoutes);
 
 // Root route
 app.get('/', (req, res) => {

@@ -26,6 +26,7 @@ import {
 import StatCard from '../components/StatCard';
 import { getInvoiceStats, getInvoices } from '../api/invoiceApi';
 import { useAuth } from '../context/AuthContext';
+import { FeatureGuard } from '../context/FeatureContext';
 import FinbridgeLoading from '../components/FinbridgeLoading';
 import toast from 'react-hot-toast';
 
@@ -293,23 +294,25 @@ const MSMEDashboard = () => {
                         )}
                         <h2 className="text-base font-semibold text-white mb-5">Quick Actions</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <button
-                                onClick={() => navigate('/upload-invoice')}
-                                disabled={user?.kycStatus !== 'VERIFIED'}
-                                className={`group text-left p-5 rounded-2xl border border-white/10 bg-transparent transition-all duration-200 ${user?.kycStatus === 'VERIFIED'
-                                    ? 'hover:bg-white/5 hover:-translate-y-0.5'
-                                    : 'opacity-50 cursor-not-allowed'
-                                    }`}
-                            >
-                                <div className="flex items-start justify-between mb-4">
-                                    <div className="h-10 w-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center">
-                                        <Plus size={18} />
+                            <FeatureGuard featureKey="INVOICE_UPLOAD">
+                                <button
+                                    onClick={() => navigate('/upload-invoice')}
+                                    disabled={user?.kycStatus !== 'VERIFIED'}
+                                    className={`group text-left p-5 rounded-2xl border border-white/10 bg-transparent transition-all duration-200 ${user?.kycStatus === 'VERIFIED'
+                                        ? 'hover:bg-white/5 hover:-translate-y-0.5'
+                                        : 'opacity-50 cursor-not-allowed'
+                                        }`}
+                                >
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div className="h-10 w-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center">
+                                            <Plus size={18} />
+                                        </div>
+                                        <ChevronRight size={15} className="text-white/20 group-hover:text-white/50 transition-colors mt-1" />
                                     </div>
-                                    <ChevronRight size={15} className="text-white/20 group-hover:text-white/50 transition-colors mt-1" />
-                                </div>
-                                <h3 className="font-medium text-white text-sm mb-1">Create Invoice</h3>
-                                <p className="text-xs text-white/50 leading-relaxed">Submit a new invoice for financing</p>
-                            </button>
+                                    <h3 className="font-medium text-white text-sm mb-1">Create Invoice</h3>
+                                    <p className="text-xs text-white/50 leading-relaxed">Submit a new invoice for financing</p>
+                                </button>
+                            </FeatureGuard>
 
                             <button
                                 onClick={() => navigate('/invoices')}

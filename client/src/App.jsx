@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { FeatureProvider } from './context/FeatureContext';
 import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -10,6 +11,7 @@ import Analytics from './pages/Analytics';
 import './App.css';
 import { Toaster } from 'react-hot-toast'; // Import Toaster
 import AdminDashboard from './pages/AdminDashboard';
+import SystemControl from './pages/SystemControl';
 
 import Landing from './pages/Landing'; // Import Landing page
 import InvoiceList from './pages/InvoiceList';
@@ -66,6 +68,7 @@ const PublicRoute = ({ children }) => {
     if (user.role === 'MSME') return <Navigate to="/msme" />;
     if (user.role === 'LENDER') return <Navigate to="/lender" />;
     if (user.role === 'ADMIN') return <Navigate to="/admin" />;
+    if (user.role === 'CONTROLLER') return <Navigate to="/system-control" />;
   }
 
   return children;
@@ -75,103 +78,112 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <Navbar />
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            style: {
-              background: '#1e293b',
-              color: '#fff',
-              border: '1px solid rgba(148, 163, 184, 0.1)',
-            },
-            success: {
-              iconTheme: {
-                primary: '#22c55e',
-                secondary: '#fff',
+        <FeatureProvider>
+          <Navbar />
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              style: {
+                background: '#1e293b',
+                color: '#fff',
+                border: '1px solid rgba(148, 163, 184, 0.1)',
               },
-            },
-            error: {
-              iconTheme: {
-                primary: '#ef4444',
-                secondary: '#fff',
+              success: {
+                iconTheme: {
+                  primary: '#22c55e',
+                  secondary: '#fff',
+                },
               },
-            },
-          }}
-        />
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={
-            <PublicRoute>
-              <Landing />
-            </PublicRoute>
-          } />
-          <Route path="/login" element={
-            <PublicRoute>
-              <Login />
-            </PublicRoute>
-          } />
-          <Route path="/register" element={
-            <PublicRoute>
-              <Register />
-            </PublicRoute>
-          } />
+              error: {
+                iconTheme: {
+                  primary: '#ef4444',
+                  secondary: '#fff',
+                },
+              },
+            }}
+          />
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={
+              <PublicRoute>
+                <Landing />
+              </PublicRoute>
+            } />
+            <Route path="/login" element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            } />
+            <Route path="/register" element={
+              <PublicRoute>
+                <Register />
+              </PublicRoute>
+            } />
 
-          {/* Protected Routes - MSME */}
-          <Route path="/msme" element={
-            <ProtectedRoute allowedRoles={['MSME']}>
-              <MSMEDashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/upload-invoice" element={
-            <ProtectedRoute allowedRoles={['MSME']}>
-              <UploadInvoice />
-            </ProtectedRoute>
-          } />
-          <Route path="/invoices" element={
-            <ProtectedRoute allowedRoles={['MSME']}>
-              <InvoiceList />
-            </ProtectedRoute>
-          } />
-          <Route path="/kyc" element={
-            <ProtectedRoute allowedRoles={['MSME']}>
-              <KycForm />
-            </ProtectedRoute>
-          } />
+            {/* Protected Routes - MSME */}
+            <Route path="/msme" element={
+              <ProtectedRoute allowedRoles={['MSME']}>
+                <MSMEDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/upload-invoice" element={
+              <ProtectedRoute allowedRoles={['MSME']}>
+                <UploadInvoice />
+              </ProtectedRoute>
+            } />
+            <Route path="/invoices" element={
+              <ProtectedRoute allowedRoles={['MSME']}>
+                <InvoiceList />
+              </ProtectedRoute>
+            } />
+            <Route path="/kyc" element={
+              <ProtectedRoute allowedRoles={['MSME']}>
+                <KycForm />
+              </ProtectedRoute>
+            } />
 
-          {/* Protected Routes - Lender */}
-          <Route path="/lender" element={
-            <ProtectedRoute allowedRoles={['LENDER']}>
-              <LenderDashboard />
-            </ProtectedRoute>
-          } />
+            {/* Protected Routes - Lender */}
+            <Route path="/lender" element={
+              <ProtectedRoute allowedRoles={['LENDER']}>
+                <LenderDashboard />
+              </ProtectedRoute>
+            } />
 
-          {/* Protected Routes - Admin */}
-          <Route path="/admin" element={
-            <ProtectedRoute allowedRoles={['ADMIN']}>
-              <AdminDashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin/kyc" element={
-            <ProtectedRoute allowedRoles={['ADMIN']}>
-              <AdminKycPage />
-            </ProtectedRoute>
-          } />
+            {/* Protected Routes - Admin */}
+            <Route path="/admin" element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/kyc" element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <AdminKycPage />
+              </ProtectedRoute>
+            } />
 
-          {/* Shared Protected Routes */}
-          <Route path="/analytics" element={
-            <ProtectedRoute allowedRoles={['MSME', 'LENDER']}>
-              <Analytics />
-            </ProtectedRoute>
-          } />
-          <Route path="/profile" element={
-            <ProtectedRoute allowedRoles={['MSME', 'LENDER']}>
-              <Profile />
-            </ProtectedRoute>
-          } />
+            {/* Protected Route - Controller */}
+            <Route path="/system-control" element={
+              <ProtectedRoute allowedRoles={['CONTROLLER']}>
+                <SystemControl />
+              </ProtectedRoute>
+            } />
 
-          {/* Default Redirect */}
-          <Route path="*" element={<Navigate to="/login" />} />
-        </Routes>
+            {/* Shared Protected Routes */}
+            <Route path="/analytics" element={
+              <ProtectedRoute allowedRoles={['MSME', 'LENDER']}>
+                <Analytics />
+              </ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute allowedRoles={['MSME', 'LENDER']}>
+                <Profile />
+              </ProtectedRoute>
+            } />
+
+            {/* Default Redirect */}
+            <Route path="*" element={<Navigate to="/login" />} />
+          </Routes>
+        </FeatureProvider>
       </AuthProvider>
     </Router>
   );
