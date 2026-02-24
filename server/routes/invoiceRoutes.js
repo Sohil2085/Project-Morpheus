@@ -3,12 +3,14 @@ import express from 'express';
 import { createInvoice, getMyInvoices, getInvoiceById } from '../controllers/invoiceController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { checkRole } from '../middleware/roleMiddleware.js';
+import { requireFeatureEnabled } from '../middleware/feature.middleware.js';
 
 const router = express.Router();
 
 // Apply authentication middleware to all routes in this router
 // All invoice operations require a logged-in user
 router.use(protect);
+router.use(requireFeatureEnabled('INVOICE_UPLOAD'));
 
 // Create a new invoice (MSME only)
 router.post(

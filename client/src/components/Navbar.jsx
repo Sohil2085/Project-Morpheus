@@ -1,5 +1,6 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { FeatureGuard } from '../context/FeatureContext';
 import ProfileBadge from './ProfileBadge';
 import '../styles/landing.css';
 
@@ -83,8 +84,12 @@ const Navbar = () => {
                 {user.role === 'MSME' && (
                     <>
                         <NavLink to="/msme" end className={linkClass}>Dashboard</NavLink>
-                        <NavLink to="/upload-invoice" className={linkClass}>Upload Invoice</NavLink>
-                        <NavLink to="/invoices" className={linkClass}>Invoices</NavLink>
+                        <FeatureGuard featureKey="INVOICE_UPLOAD">
+                            <NavLink to="/upload-invoice" className={linkClass}>Upload Invoice</NavLink>
+                        </FeatureGuard>
+                        <FeatureGuard featureKey="INVOICE_UPLOAD">
+                            <NavLink to="/invoices" className={linkClass}>Invoices</NavLink>
+                        </FeatureGuard>
                     </>
                 )}
                 {user.role === 'LENDER' && (

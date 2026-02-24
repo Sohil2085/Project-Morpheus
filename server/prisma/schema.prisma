@@ -128,10 +128,20 @@ model FraudFlag {
   @@map("fraud_flags")
 }
 
+model FeatureFlag {
+  id         String   @id @default(uuid())
+  featureKey String   @unique
+  isEnabled  Boolean  @default(true)
+  updatedAt  DateTime @updatedAt
+
+  @@map("feature_flags")
+}
+
 enum Role {
   MSME
   LENDER
   ADMIN
+  CONTROLLER
 }
 
 enum KycStatus {
