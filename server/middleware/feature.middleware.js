@@ -55,7 +55,7 @@ export const requireFeatureEnabled = (featureKey) => {
         if (isEnabled === false) {
             return res.status(403).json({
                 success: false,
-                message: "This feature is currently disabled by administrator."
+                message: `The feature '${featureKey}' is currently disabled by administrator.`
             });
         }
 
