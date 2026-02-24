@@ -77,7 +77,7 @@ const PendingKycTable = () => {
                 </div>
             ) : (
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm text-white/70">
+                    <table className="w-full text-left text-sm text-white/70 min-w-[800px]">
                         <thead className="text-xs uppercase bg-white/5 text-white/50 border-b border-white/5">
                             <tr>
                                 <th className="px-6 py-4 font-medium">Business / User</th>

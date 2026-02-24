@@ -68,8 +68,8 @@ const AdminTables = () => {
 
             {/* Users Table */}
             {activeTab === 'users' && (
-                <div className="table-wrapper">
-                    <table className="admin-table">
+                <div className="table-wrapper overflow-x-auto">
+                    <table className="admin-table min-w-[800px]">
                         <thead>
                             <tr>
                                 <th>Name</th>
@@ -104,8 +104,8 @@ const AdminTables = () => {
 
             {/* Invoices Table */}
             {activeTab === 'invoices' && (
-                <div className="table-wrapper">
-                    <table className="admin-table">
+                <div className="table-wrapper overflow-x-auto">
+                    <table className="admin-table min-w-[800px]">
                         <thead>
                             <tr>
                                 <th>Invoice No</th>
@@ -136,8 +136,8 @@ const AdminTables = () => {
 
             {/* Transactions Table */}
             {activeTab === 'transactions' && (
-                <div className="table-wrapper">
-                    <table className="admin-table">
+                <div className="table-wrapper overflow-x-auto">
+                    <table className="admin-table min-w-[800px]">
                         <thead>
                             <tr>
                                 <th>Transaction ID</th>
