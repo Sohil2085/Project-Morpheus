@@ -32,18 +32,19 @@ const Navbar = () => {
     // Premium Landing Navbar (Responsive)
     if (isLanding) {
         return (
-            <nav className="fixed top-0 left-0 right-0 h-20 px-6 md:px-12 flex justify-between items-center backdrop-blur bg-slate-950/70 border-b border-white/10 z-50">
-                {/* Brand Left - Text Only */}
+            <nav className="landing-nav fixed top-0 left-0 right-0 px-6 py-3 flex justify-between items-center z-50">
+                {/* Brand Left */}
                 <div
                     onClick={() => navigate('/')}
-                    className="font-extrabold text-lg text-white tracking-tight cursor-pointer"
+                    className="cursor-pointer flex items-center gap-0"
                 >
-                    FinBridge
+                    <span className="font-bold text-lg tracking-tight text-blue-400">Fin</span>
+                    <span className="font-bold text-lg tracking-tight text-white">Bridge</span>
                 </div>
 
                 {/* Mobile Menu Toggle */}
                 <div className="md:hidden">
-                    <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-white p-2">
+                    <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-white p-1">
                         {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>
                 </div>
@@ -54,13 +55,13 @@ const Navbar = () => {
                         <>
                             <button
                                 onClick={() => navigate('/login')}
-                                className="btn-ghost navbar-button"
+                                className="landing-nav-btn-ghost"
                             >
                                 Login
                             </button>
                             <button
                                 onClick={() => navigate('/register')}
-                                className="btn-primary navbar-button"
+                                className="landing-nav-btn-primary"
                             >
                                 Sign Up
                             </button>
@@ -68,7 +69,7 @@ const Navbar = () => {
                     ) : (
                         <button
                             onClick={handleLogout}
-                            className="btn-ghost navbar-button"
+                            className="landing-nav-btn-ghost"
                         >
                             Logout
                         </button>
@@ -77,18 +78,18 @@ const Navbar = () => {
 
                 {/* Mobile Dropdown */}
                 {isMobileMenuOpen && (
-                    <div className="absolute top-20 left-0 right-0 bg-slate-900 border-b border-white/10 p-6 flex flex-col gap-4 md:hidden shadow-2xl">
+                    <div className="absolute top-[50px] left-0 right-0 border-b p-5 flex flex-col gap-3 md:hidden shadow-2xl" style={{background:'rgba(11,18,32,0.97)', borderColor:'rgba(59,130,246,0.14)', backdropFilter:'blur(18px)' }}>
                         {!user ? (
                             <>
                                 <button
                                     onClick={() => { setIsMobileMenuOpen(false); navigate('/login'); }}
-                                    className="btn-ghost w-full justify-center"
+                                    className="landing-nav-btn-ghost w-full justify-center"
                                 >
                                     Login
                                 </button>
                                 <button
                                     onClick={() => { setIsMobileMenuOpen(false); navigate('/register'); }}
-                                    className="btn-primary w-full justify-center"
+                                    className="landing-nav-btn-primary w-full justify-center"
                                 >
                                     Sign Up
                                 </button>
@@ -96,7 +97,7 @@ const Navbar = () => {
                         ) : (
                             <button
                                 onClick={() => { setIsMobileMenuOpen(false); handleLogout(); }}
-                                className="btn-ghost w-full justify-center"
+                                className="landing-nav-btn-ghost w-full justify-center"
                             >
                                 Logout
                             </button>
