@@ -283,31 +283,40 @@ const InvoiceDetailPanel = ({ invoice, onClose }) => {
 
 // ─── Section Components ───────────────────────────────────────────────────────
 
-const OverviewSection = () => (
+const OverviewSection = ({ onExploreMarketplace }) => (
     <div className="space-y-8">
-        {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5">
-            <StatCard title="Available Funds" value="₹24,50,000" icon={DollarSign} color="accent" trend="up" trendValue="+₹5L" />
-            <StatCard title="Total Invested" value="₹7,00,000" icon={TrendingUp} color="success" trend="up" trendValue="+18%" />
-            <StatCard title="Active Investments" value="2" icon={Briefcase} color="accent" />
-            <StatCard title="Expected Returns" value="₹46,750" icon={TrendingUp} color="success" trend="up" trendValue="+12.4%" />
-            <StatCard title="Risk Exposure" value="15%" icon={AlertTriangle} color="danger" />
+        {/* KPI Summary Cards — 4 metrics as per spec */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <StatCard title="Total Funds Invested" value="₹7,00,000" icon={TrendingUp} color="accent" trend="up" trendValue="+18%" />
+            <StatCard title="Active Deals" value="2" icon={Briefcase} color="success" />
+            <StatCard title="Total Returns Earned" value="₹46,750" icon={DollarSign} color="success" trend="up" trendValue="+12.4%" />
+            <StatCard title="Available Wallet Balance" value="₹24,50,000" icon={ArrowUpRight} color="accent2" trend="up" trendValue="+₹5L" />
         </div>
 
         {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Portfolio Trend */}
+            {/* Investment Over Time */}
             <div className="lg:col-span-2 bg-card border border-cardBorder rounded-xl p-6 shadow-lg backdrop-blur-sm min-w-0">
                 <div className="flex justify-between items-center mb-6">
                     <div>
-                        <h2 className="text-lg font-semibold text-white">Portfolio Performance</h2>
-                        <p className="text-xs text-muted mt-0.5">6-month investment & returns trend</p>
+                        <h2 className="text-lg font-semibold text-white">Investment Over Time</h2>
+                        <p className="text-xs text-muted mt-0.5">6-month investment growth trend</p>
                     </div>
                     <span className="text-xs px-2.5 py-1 rounded-full bg-success/10 text-success border border-success/20">+8.7% avg</span>
                 </div>
                 <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                         <LineChart data={DUMMY_PORTFOLIO_TREND}>
+                            <defs>
+                                <linearGradient id="investedGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.15} />
+                                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                </linearGradient>
+                                <linearGradient id="returnsGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#22c55e" stopOpacity={0.15} />
+                                    <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+                                </linearGradient>
+                            </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
                             <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
                             <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}K`} />
@@ -327,7 +336,7 @@ const OverviewSection = () => (
                 </div>
             </div>
 
-            {/* Risk Distribution */}
+            {/* Risk Distribution Doughnut */}
             <div className="bg-card border border-cardBorder rounded-xl p-6 shadow-lg backdrop-blur-sm min-w-0">
                 <h2 className="text-lg font-semibold text-white mb-1">Risk Distribution</h2>
                 <p className="text-xs text-muted mb-6">Current portfolio breakdown</p>
@@ -369,32 +378,16 @@ const OverviewSection = () => (
             </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="bg-card border border-cardBorder rounded-xl p-6 shadow-lg backdrop-blur-sm">
-            <h2 className="text-lg font-semibold text-white mb-6">Quick Actions</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button className="p-4 rounded-xl bg-accent/5 border border-accent/20 hover:bg-accent/10 hover:border-accent/40 transition-all group text-left">
-                    <div className="h-10 w-10 rounded-lg bg-accent/20 text-accent flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                        <Zap size={20} />
-                    </div>
-                    <h3 className="font-semibold text-white">Browse Invoices</h3>
-                    <p className="text-xs text-muted mt-1">Find & fund new opportunities</p>
-                </button>
-                <button className="p-4 rounded-xl bg-bg0 border border-cardBorder hover:border-muted/30 transition-all group text-left">
-                    <div className="h-10 w-10 rounded-lg bg-success/20 text-success flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                        <TrendingUp size={20} />
-                    </div>
-                    <h3 className="font-semibold text-white">View Returns</h3>
-                    <p className="text-xs text-muted mt-1">Track investment performance</p>
-                </button>
-                <button className="p-4 rounded-xl bg-bg0 border border-cardBorder hover:border-muted/30 transition-all group text-left">
-                    <div className="h-10 w-10 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                        <ShieldAlert size={20} />
-                    </div>
-                    <h3 className="font-semibold text-white">Risk Report</h3>
-                    <p className="text-xs text-muted mt-1">Download portfolio analysis</p>
-                </button>
-            </div>
+        {/* Explore Marketplace CTA */}
+        <div className="flex justify-center pt-2 pb-4">
+            <button
+                onClick={onExploreMarketplace}
+                className="btn-primary px-8 py-3.5 text-base font-semibold flex items-center gap-2.5 shadow-lg shadow-accent/20 hover:shadow-accent/30 transition-all"
+            >
+                <Zap size={18} />
+                Explore Marketplace
+                <ChevronRight size={18} />
+            </button>
         </div>
     </div>
 );
@@ -859,7 +852,7 @@ const LenderDashboard = () => {
 
     const renderSection = () => {
         switch (activeTab) {
-            case 'overview': return <OverviewSection />;
+            case 'overview': return <OverviewSection onExploreMarketplace={() => setActiveTab('marketplace')} />;
             case 'marketplace': return isKycVerified
                 ? <MarketplaceSection onSelectInvoice={setSelectedInvoice} />
                 : <MarketplaceKycBanner />;
