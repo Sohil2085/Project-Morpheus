@@ -15,27 +15,30 @@ const initialStats = {
 };
 
 const mapInvoiceFromBackend = (data) => {
+    const riskAnalysis = data.risk_analysis || data.riskAnalysis || data;
+
     // Extract Fraud Score
-    const fraudScore = data.fraud_flags && data.fraud_flags.length > 0
-        ? data.fraud_flags[0].riskScore
-        : (data.fraudScore || 0);
+    const fraudScore = riskAnalysis.fraudScore ??
+        (data.fraud_flags && data.fraud_flags.length > 0 ? data.fraud_flags[0].riskScore : (data.fraudScore || 0));
 
     // Extract Credit Score & Risk Level
-    // Check both relation (from getInvoices) and direct properties (from createInvoice response)
     const creditData = data.credit_score || {};
-    const creditScore = creditData.score ?? data.creditScore ?? 0;
-    const riskLevel = creditData.risk_level ?? data.riskLevel ?? 'UNKNOWN';
+    const creditScore = riskAnalysis.finalScore ?? creditData.score ?? data.creditScore ?? 0;
+    const riskLevel = riskAnalysis.creditRiskBand?.toUpperCase() ?? creditData.risk_level ?? data.riskLevel ?? 'UNKNOWN';
 
     return {
-        id: data.id || data.invoiceId, // Controller returns invoiceId in create response, id in list
+        id: data.id || data.invoiceId,
         amount: data.amount,
-        dueDate: data.due_date || data.dueDate, // Handle both cases if needed, usually snake_case from DB
+        dueDate: data.due_date || data.dueDate,
         buyerGstin: data.buyer_gstin || data.buyerGSTIN,
         createdAt: data.created_at || new Date().toISOString(),
         status: data.status,
         fraudScore: fraudScore,
         creditScore: creditScore,
+        baseCreditScore: riskAnalysis.creditScore ?? creditScore,
+        fraudProbability: riskAnalysis.fraudProbability ?? 0,
         riskLevel: riskLevel,
+        breakdown: riskAnalysis.breakdown || riskAnalysis.breakdownJSON || null,
         original: data
     };
 };
