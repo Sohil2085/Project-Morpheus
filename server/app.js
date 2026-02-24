@@ -40,6 +40,9 @@ app.use('/api/features', featureRoutes);
 app.get('/', (req, res) => {
     res.send('API is running...');
 });
+app.get("/health", (req, res) => {
+    res.status(200).json({ status: "running" });
+}); 
 
 app.use(errorHandler);
 
