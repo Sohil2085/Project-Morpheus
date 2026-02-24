@@ -6,14 +6,19 @@ import kycRoutes from './routes/kyc.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import featureRoutes from './routes/feature.routes.js';
 import errorHandler from './middleware/error.middleware.js';
+import cookieParser from 'cookie-parser';
+
 const app = express();
 
 // Middleware
+app.set("trust proxy", 1); // 🔥 Required for Render
 app.use(cors({
-    origin: process.env.CLIENT_URL || '*', // Set CLIENT_URL in Render to your Vercel URL
+    origin: process.env.CLIENT_URL || "http://localhost:5173", // Use environment variable for frontend origin
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true
 }));
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 // Debug Middleware to log request details
