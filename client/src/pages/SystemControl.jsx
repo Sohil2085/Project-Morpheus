@@ -19,8 +19,9 @@ const SystemControl = () => {
 
     const handleToggle = async (featureKey, currentValue) => {
         try {
+            const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
             const response = await axios.patch(
-                `http://localhost:5000/api/features/admin/${featureKey}`,
+                `${API_BASE_URL}/features/admin/${featureKey}`,
                 { isEnabled: !currentValue },
                 {
                     headers: {
