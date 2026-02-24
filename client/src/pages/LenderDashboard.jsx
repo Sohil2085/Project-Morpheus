@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     LineChart, Line, BarChart, Bar,
     PieChart, Pie, Cell,
@@ -11,11 +12,13 @@ import {
     Video, Clock, CheckCircle, XCircle, BarChart2,
     ChevronRight, X, FileText, Download, ExternalLink,
     Building, AlertOctagon, Calendar, PieChart as PieChartIcon,
-    ArrowUpRight, ArrowDownRight
+    ArrowUpRight, ArrowDownRight, ShieldCheck, LockKeyhole
 } from 'lucide-react';
 import StatCard from '../components/StatCard';
 import RiskBadge from '../components/RiskBadge';
 import { useAuth } from '../context/AuthContext';
+import FinbridgeLoading from '../components/FinbridgeLoading';
+import toast from 'react-hot-toast';
 import '../styles/landing.css';
 
 // ─── Static Dummy Data ────────────────────────────────────────────────────────
@@ -780,14 +783,86 @@ const AnalyticsSection = () => (
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 
 const LenderDashboard = () => {
+    const navigate = useNavigate();
     const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('overview');
     const [selectedInvoice, setSelectedInvoice] = useState(null);
 
+    const kycStatus = user?.kycStatus || 'NOT_SUBMITTED';
+    const isKycVerified = kycStatus === 'VERIFIED';
+
+    // Loading skeleton — identical to MSMEDashboard pattern
+    const [loading, setLoading] = useState(true);
+    const [visible, setVisible] = useState(false);
+
+    useEffect(() => {
+        // Simulate short init delay for skeleton (matches MSME)
+        const t = setTimeout(() => {
+            setLoading(false);
+            setTimeout(() => setVisible(true), 20);
+        }, 1500);
+        return () => clearTimeout(t);
+    }, []);
+
+    // KYC toast on first render — identical to MSME pattern
+    useEffect(() => {
+        if (kycStatus !== 'VERIFIED' && kycStatus !== 'NOT_SUBMITTED') {
+            const toastId = 'kyc-status-toast';
+            if (kycStatus === 'IN_PROGRESS') {
+                toast(`🔍 Your KYC is under review. We'll notify you once verified.`, {
+                    id: toastId,
+                    duration: 5000,
+                    style: { background: '#1e293b', color: '#fff', border: '1px solid rgba(59,130,246,0.3)' },
+                });
+            } else if (kycStatus === 'REJECTED') {
+                toast.error('❌ Your KYC was rejected. Please resubmit to access the marketplace.', {
+                    id: toastId,
+                    duration: 6000,
+                });
+            }
+        }
+    }, [kycStatus]);
+
+    // ── Marketplace KYC Gate Banner ───────────────────────────────────────────
+    const MarketplaceKycBanner = () => (
+        <div className="flex flex-col items-center justify-center py-20 space-y-6 text-center">
+            <div className="w-20 h-20 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                <LockKeyhole size={36} className="text-amber-500" />
+            </div>
+            <div>
+                <h2 className="text-2xl font-bold text-white mb-2">Marketplace Access Restricted</h2>
+                <p className="text-muted max-w-md">
+                    {kycStatus === 'IN_PROGRESS'
+                        ? 'Your KYC is currently under review. Marketplace access will be unlocked once verified by our team.'
+                        : kycStatus === 'REJECTED'
+                        ? 'Your KYC was rejected. Please resubmit your details to regain marketplace access.'
+                        : 'Please complete your KYC verification to access the invoice marketplace.'}
+                </p>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+                <button
+                    onClick={() => navigate('/lender/kyc')}
+                    className="btn-primary px-6 py-2.5 flex items-center gap-2"
+                >
+                    <ShieldCheck size={16} />
+                    {kycStatus === 'REJECTED' ? 'Resubmit KYC' : kycStatus === 'IN_PROGRESS' ? 'View KYC Status' : 'Complete KYC'}
+                </button>
+                {kycStatus === 'IN_PROGRESS' && (
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                        <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+                        <span className="text-xs text-blue-400 font-medium">Verification in progress</span>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+
     const renderSection = () => {
         switch (activeTab) {
             case 'overview': return <OverviewSection />;
-            case 'marketplace': return <MarketplaceSection onSelectInvoice={setSelectedInvoice} />;
+            case 'marketplace': return isKycVerified
+                ? <MarketplaceSection onSelectInvoice={setSelectedInvoice} />
+                : <MarketplaceKycBanner />;
             case 'investments': return <InvestmentsSection />;
             case 'meetings': return <MeetingsSection />;
             case 'analytics': return <AnalyticsSection />;
@@ -796,7 +871,24 @@ const LenderDashboard = () => {
     };
 
     return (
-        <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6 animate-fade-in pb-20 relative">
+        <div className="min-h-screen relative overflow-hidden bg-slate-950">
+            {/* Glow blobs — same as MSMEDashboard */}
+            <div className="absolute top-0 right-1/4 w-[480px] h-[480px] bg-blue-600 rounded-full -z-10 blur-3xl opacity-[0.12] pointer-events-none" />
+            <div className="absolute bottom-1/4 -left-24 w-[400px] h-[400px] bg-cyan-500 rounded-full -z-10 blur-3xl opacity-[0.08] pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900/40 to-slate-950 -z-10 pointer-events-none" />
+
+            <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                {/* Skeleton loader — same as MSMEDashboard */}
+                {loading && <FinbridgeLoading userName={user?.name} />}
+
+                <div
+                    className="space-y-6 pb-20"
+                    style={{
+                        opacity: (loading || !visible) ? 0 : 1,
+                        transition: 'opacity 0.5s ease',
+                        display: loading ? 'none' : undefined,
+                    }}
+                >
             {/* Invoice Detail Panel Overlay */}
             {selectedInvoice && (
                 <InvoiceDetailPanel
@@ -804,19 +896,40 @@ const LenderDashboard = () => {
                     onClose={() => setSelectedInvoice(null)}
                 />
             )}
-            {/* Page Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            {/* Page Header — same pattern as MSMEDashboard */}
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-5">
                 <div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">
-                        Welcome back, {user?.name || 'Lender'}
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs font-medium mb-4">
+                        <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse" />
+                        Lender Dashboard
+                    </div>
+                    <h1 className="text-4xl font-semibold text-white tracking-tight">
+                        Welcome back,{' '}
+                        <span className="text-blue-400">{user?.name || 'Lender'}</span>
                     </h1>
-                    <p className="text-muted mt-1">Your investment control panel — FinBridge Lender Portal</p>
+                    <p className="text-white/60 mt-2 text-sm">Here's what's happening with your investments today.</p>
                 </div>
-                <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-accent/10 border border-accent/30">
-                    <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-                    <span className="text-xs font-semibold text-accent">6 New Invoices Available</span>
-                    <ChevronRight size={14} className="text-accent" />
-                </div>
+
+                {/* KYC CTA — amber pulsing button identical to MSME */}
+                {!isKycVerified ? (
+                    <div className="shrink-0 flex flex-col items-end gap-2 text-right">
+                        <button
+                            onClick={() => navigate('/lender/kyc')}
+                            className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-medium px-6 py-3 rounded-xl transition-all shadow-lg shadow-amber-500/20 text-sm animate-pulse"
+                        >
+                            <Briefcase size={16} />
+                            Complete KYC to Unlock Marketplace
+                        </button>
+                        <span className="text-amber-400/80 text-xs font-medium bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">
+                            Current Status: {kycStatus?.replace('_', ' ') || 'NOT SUBMITTED'}
+                        </span>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold shrink-0">
+                        <ShieldCheck size={14} />
+                        KYC Verified
+                    </div>
+                )}
             </div>
 
             {/* Tab Navigation */}
@@ -844,6 +957,8 @@ const LenderDashboard = () => {
 
             {/* Active Section */}
             {renderSection()}
+                </div>
+            </div>
         </div>
     );
 };

@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { FeatureGuard } from '../context/FeatureContext';
 import ProfileBadge from './ProfileBadge';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ShieldCheck } from 'lucide-react';
 import '../styles/landing.css';
 
 const Navbar = () => {
@@ -151,6 +151,23 @@ const Navbar = () => {
                         <>
                             <NavLink to="/lender" end className={linkClass}>Dashboard</NavLink>
                             <NavLink to="/analytics" className={linkClass}>Analytics</NavLink>
+                            <NavLink
+                                to="/lender/kyc"
+                                className={({ isActive }) =>
+                                    `px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all flex items-center gap-1.5 ${
+                                        isActive
+                                            ? 'bg-blue-500/20 border-blue-500/40 text-blue-400'
+                                            : user.kycStatus === 'VERIFIED'
+                                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20'
+                                            : user.kycStatus === 'IN_PROGRESS'
+                                            ? 'bg-blue-500/10 border-blue-500/30 text-blue-400 hover:bg-blue-500/20'
+                                            : 'bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500/20'
+                                    }`
+                                }
+                            >
+                                <ShieldCheck size={13} />
+                                {user.kycStatus === 'VERIFIED' ? 'KYC Verified' : user.kycStatus === 'IN_PROGRESS' ? 'KYC: In Review' : 'Complete KYC'}
+                            </NavLink>
                         </>
                     )}
                     <div className="ml-3">
@@ -177,6 +194,24 @@ const Navbar = () => {
                         <>
                             <NavLink to="/lender" end className={linkClass} onClick={() => setIsMobileMenuOpen(false)}>Dashboard</NavLink>
                             <NavLink to="/analytics" className={linkClass} onClick={() => setIsMobileMenuOpen(false)}>Analytics</NavLink>
+                            <NavLink
+                                to="/lender/kyc"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className={({ isActive }) =>
+                                    `px-3 py-2 rounded-lg text-sm font-semibold border transition-all flex items-center gap-2 ${
+                                        isActive
+                                            ? 'bg-blue-500/20 border-blue-500/40 text-blue-400'
+                                            : user.kycStatus === 'VERIFIED'
+                                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                                            : user.kycStatus === 'IN_PROGRESS'
+                                            ? 'bg-blue-500/10 border-blue-500/30 text-blue-400'
+                                            : 'bg-amber-500/10 border-amber-500/30 text-amber-400'
+                                    }`
+                                }
+                            >
+                                <ShieldCheck size={14} />
+                                {user.kycStatus === 'VERIFIED' ? 'KYC Verified' : user.kycStatus === 'IN_PROGRESS' ? 'KYC: In Review' : 'Complete KYC'}
+                            </NavLink>
                         </>
                     )}
                 </div>
