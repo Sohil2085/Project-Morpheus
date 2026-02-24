@@ -9,7 +9,10 @@ import errorHandler from './middleware/error.middleware.js';
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: process.env.CLIENT_URL || '*', // Set CLIENT_URL in Render to your Vercel URL
+    credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
