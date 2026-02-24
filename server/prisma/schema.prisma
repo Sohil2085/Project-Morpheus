@@ -13,13 +13,13 @@ model User {
   email        String      @unique
   password     String
   role         Role        @default(MSME)
-  kycStatus    KycStatus   @default(NOT_SUBMITTED)
-  riskScore    Int?
-  isActive     Boolean     @default(true)
   gstin        String?
   business_age Int?
   created_at   DateTime    @default(now())
   updated_at   DateTime    @updatedAt
+  isActive     Boolean     @default(true)
+  kycStatus    KycStatus   @default(NOT_SUBMITTED)
+  riskScore    Int?
   bids         Bid[]       @relation("UserBids")
   fraud_flags  FraudFlag[]
   invoices     Invoice[]   @relation("UserInvoices")
@@ -47,29 +47,28 @@ model KYC {
   reviewedAt        DateTime?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("kyc_records")
 }
 
 model Invoice {
-  id             String        @id @default(uuid())
-  invoice_number String?       
+  id             String               @id @default(uuid())
   user_id        String
-  amount         Decimal       @db.Decimal(15, 2)
+  amount         Decimal              @db.Decimal(15, 2)
   due_date       DateTime
   buyer_gstin    String
-  status         InvoiceStatus @default(PENDING)
-  gst_verified   Boolean       @default(false)
-  created_at     DateTime      @default(now())
-  updated_at     DateTime      @updatedAt
+  status         InvoiceStatus        @default(PENDING)
+  gst_verified   Boolean              @default(false)
+  created_at     DateTime             @default(now())
+  updated_at     DateTime             @updatedAt
+  invoice_number String?
   bids           Bid[]
   credit_score   CreditScore?
   fraud_flags    FraudFlag[]
-  user           User          @relation("UserInvoices", fields: [user_id], references: [id], onDelete: Cascade)
-  transactions   Transaction[]
   risk_analysis  InvoiceRiskAnalysis?
+  user           User                 @relation("UserInvoices", fields: [user_id], references: [id], onDelete: Cascade)
+  transactions   Transaction[]
 
   @@index([user_id])
   @@index([status])
@@ -150,7 +149,6 @@ model InvoiceRiskAnalysis {
   fraudRiskBand    String
   breakdownJSON    Json
   createdAt        DateTime @default(now())
-  
   invoice          Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
   @@index([invoiceId])
