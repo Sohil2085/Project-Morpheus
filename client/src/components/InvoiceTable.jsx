@@ -41,71 +41,73 @@ const InvoiceTable = ({ invoices, onCreate }) => {
     }
 
     return (
-        <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl overflow-hidden">
-            <div className="overflow-x-auto">
-                <table className="w-full text-left min-w-[900px]">
-                    <thead>
-                        <tr className="border-b border-white/10 bg-white/5">
-                            <th className="px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-widest">Invoice ID</th>
-                            <th className="px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-widest">Buyer GSTIN</th>
-                            <th className="px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-widest">Amount</th>
-                            <th className="px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-widest">Date</th>
-                            <th className="px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-widest">Credit Score</th>
-                            <th className="px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-widest">Risk</th>
-                            <th className="px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-widest">Status</th>
-                            <th className="px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-widest text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/[0.05]">
-                        {invoices.map((invoice) => (
-                            <tr key={invoice.id} className="hover:bg-white/5 transition-colors">
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="text-sm font-mono font-medium text-white/80">#{invoice.id.toString().slice(-6)}</span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="text-sm text-white/60 font-mono">{invoice.buyerGstin}</span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="text-sm font-semibold text-white">₹{Number(invoice.amount).toLocaleString()}</span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="text-sm text-white/50">{new Date(invoice.createdAt).toLocaleDateString()}</span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-14 bg-white/10 rounded-full h-1 overflow-hidden">
-                                            <div
-                                                className={`h-1 rounded-full ${invoice.creditScore >= 80 ? 'bg-emerald-400' :
-                                                        invoice.creditScore >= 50 ? 'bg-amber-400' : 'bg-rose-400'
-                                                    }`}
-                                                style={{ width: `${invoice.creditScore}%` }}
-                                            />
-                                        </div>
-                                        <span className="text-xs text-white/40 tabular-nums">{invoice.creditScore}</span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className={`inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full capitalize ${riskPill(invoice.riskLevel)}`}>
-                                        {(invoice.riskLevel || 'N/A').toLowerCase()}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className={`inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full ${statusPill(invoice.status)}`}>
-                                        {invoice.status}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right">
-                                    <button
-                                        onClick={() => setSelectedInvoice(invoice)}
-                                        className="text-xs text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 px-3 py-1.5 rounded-lg transition-colors border border-blue-500/20"
-                                    >
-                                        Details
-                                    </button>
-                                </td>
+        <>
+            <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left min-w-[900px]">
+                        <thead>
+                            <tr className="border-b border-white/10 bg-white/5">
+                                <th className="px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-widest">Invoice ID</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-widest">Buyer GSTIN</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-widest">Amount</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-widest">Date</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-widest">Credit Score</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-widest">Risk</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-widest">Status</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-white/40 uppercase tracking-widest text-right">Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-white/[0.05]">
+                            {invoices.map((invoice) => (
+                                <tr key={invoice.id} className="hover:bg-white/5 transition-colors">
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <span className="text-sm font-mono font-medium text-white/80">#{invoice.id.toString().slice(-6)}</span>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <span className="text-sm text-white/60 font-mono">{invoice.buyerGstin}</span>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <span className="text-sm font-semibold text-white">₹{Number(invoice.amount).toLocaleString()}</span>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <span className="text-sm text-white/50">{new Date(invoice.createdAt).toLocaleDateString()}</span>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-14 bg-white/10 rounded-full h-1 overflow-hidden">
+                                                <div
+                                                    className={`h-1 rounded-full ${invoice.creditScore >= 80 ? 'bg-emerald-400' :
+                                                        invoice.creditScore >= 50 ? 'bg-amber-400' : 'bg-rose-400'
+                                                        }`}
+                                                    style={{ width: `${invoice.creditScore}%` }}
+                                                />
+                                            </div>
+                                            <span className="text-xs text-white/40 tabular-nums">{invoice.creditScore}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <span className={`inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full capitalize ${riskPill(invoice.riskLevel)}`}>
+                                            {(invoice.riskLevel || 'N/A').toLowerCase()}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <span className={`inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full ${statusPill(invoice.status)}`}>
+                                            {invoice.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                                        <button
+                                            onClick={() => setSelectedInvoice(invoice)}
+                                            className="text-xs text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 px-3 py-1.5 rounded-lg transition-colors border border-blue-500/20"
+                                        >
+                                            Details
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {/* Risk Breakdown Modal */}
@@ -217,7 +219,7 @@ const InvoiceTable = ({ invoices, onCreate }) => {
                     </div>
                 </div>
             )}
-        </div>
+        </>
     );
 };
 
