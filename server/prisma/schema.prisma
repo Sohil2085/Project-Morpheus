@@ -54,20 +54,22 @@ model KYC {
 }
 
 model Invoice {
-  id           String        @id @default(uuid())
-  user_id      String
-  amount       Decimal       @db.Decimal(15, 2)
-  due_date     DateTime
-  buyer_gstin  String
-  status       InvoiceStatus @default(PENDING)
-  gst_verified Boolean       @default(false)
-  created_at   DateTime      @default(now())
-  updated_at   DateTime      @updatedAt
-  bids         Bid[]
-  credit_score CreditScore?
-  fraud_flags  FraudFlag[]
-  user         User          @relation("UserInvoices", fields: [user_id], references: [id], onDelete: Cascade)
-  transactions Transaction[]
+  id             String        @id @default(uuid())
+  invoice_number String?       
+  user_id        String
+  amount         Decimal       @db.Decimal(15, 2)
+  due_date       DateTime
+  buyer_gstin    String
+  status         InvoiceStatus @default(PENDING)
+  gst_verified   Boolean       @default(false)
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
+  bids           Bid[]
+  credit_score   CreditScore?
+  fraud_flags    FraudFlag[]
+  user           User          @relation("UserInvoices", fields: [user_id], references: [id], onDelete: Cascade)
+  transactions   Transaction[]
+  risk_analysis  InvoiceRiskAnalysis?
 
   @@index([user_id])
   @@index([status])
@@ -135,6 +137,24 @@ model FeatureFlag {
   updatedAt  DateTime @updatedAt
 
   @@map("feature_flags")
+}
+
+model InvoiceRiskAnalysis {
+  id               String   @id @default(uuid())
+  invoiceId        String   @unique
+  creditScore      Int
+  fraudScore       Int
+  fraudProbability Float
+  finalScore       Int
+  creditRiskBand   String
+  fraudRiskBand    String
+  breakdownJSON    Json
+  createdAt        DateTime @default(now())
+  
+  invoice          Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@map("invoice_risk_analysis")
 }
 
 enum Role {

@@ -1,129 +1,110 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { FRAUD_CONSTANTS } from './riskConstants.js';
 
 /**
- * Detects fraud risk based on transaction details and history.
+ * Calculates Fraud Risk Score (0-100) and Probability (0-1).
  * 
  * @param {Object} params
- * @param {number} params.amount - Invoice amount
- * @param {number} params.businessAge - User business age in months
- * @param {string} params.buyerGSTIN - Buyer's GSTIN
- * @param {string} params.userId - User ID
- * @param {string} params.invoiceId - Invoice ID (optional, for logging)
- * @returns {Promise<{ flagged: boolean, riskScore: number, reasonString: string, reasons: string[] }>}
+ * @param {number} params.invoiceAmount - Current invoice amount in INR
+ * @param {number} params.annualTurnover - Annual turnover in INR
+ * @param {number} params.businessAge - Business age in years
+ * @param {number[]} params.last6Invoices - Array of last 6 invoice amounts for spike detection
+ * @param {Object[]} params.invoiceHistory - Array of past invoices for round pattern history
+ * @param {boolean} params.hasDuplicate - Boolean indicating if a duplicate invoice was found within timeframe
+ * 
+ * @returns {Object} { score: number, probability: number, breakdown: Object }
  */
-export const detectFraud = async ({ amount, businessAge, buyerGSTIN, userId, invoiceId }) => {
-    try {
-        let riskScore = 0;
-        let reasons = [];
+export const calculateFraudScore = ({
+    invoiceAmount,
+    annualTurnover,
+    businessAge,
+    last6Invoices = [],
+    invoiceHistory = [],
+    hasDuplicate = false
+}) => {
+    let totalScore = 0;
+    const breakdown = {
+        ratioRisk: { score: 0, reason: '' },
+        spikeRisk: { score: 0, reason: '' },
+        roundRisk: { score: 0, reason: '' },
+        ageMismatchRisk: { score: 0, reason: '' },
+        duplicateRisk: { score: 0, reason: '' },
+    };
 
-        // --- 1. Invoice Amount Risk ---
-        // < 1L -> +5
-        // 1L–5L -> +20
-        // 5L–20L -> +30
-        // >20L -> +40
-        if (amount < 100000) {
-            riskScore += 5;
-            reasons.push("Small Invoice Amount (+5)");
-        } else if (amount >= 100000 && amount < 500000) {
-            riskScore += 15;
-            reasons.push("Moderate Invoice Amount (+15)");
-        } else if (amount >= 500000 && amount < 2000000) {
-            riskScore += 30;
-            reasons.push("High Invoice Amount (+30)");
-        } else {
-            riskScore += 40;
-            reasons.push("Very High Invoice Amount (+40)");
-        }
+    // 1) INVOICE-TO-TURNOVER FRAUD RISK
+    const invoiceRatio = annualTurnover > 0 ? (invoiceAmount / annualTurnover) : Infinity;
+    const ratioRiskBand = FRAUD_CONSTANTS.RATIO_RISK_BANDS.find(b => invoiceRatio < b.maxRatio) || FRAUD_CONSTANTS.RATIO_RISK_BANDS[FRAUD_CONSTANTS.RATIO_RISK_BANDS.length - 1];
 
-        // --- 2. Business Age Risk ---
-        // 0 years (< 1 year) -> +25
-        // 1 year -> +15
-        // > 1 year -> +0
-        if (businessAge < 1) {
-            riskScore += 25;
-            reasons.push("New Business Risk (< 1 year) (+25)");
-        } else if (businessAge === 1) {
-            riskScore += 15;
-            reasons.push("Early Stage Business Risk (1 year) (+15)");
-        }
+    breakdown.ratioRisk.score = ratioRiskBand.points;
+    breakdown.ratioRisk.reason = `Invoice is ${(invoiceRatio * 100).toFixed(2)}% of turnover (< ${(ratioRiskBand.maxRatio === Infinity ? 'Infinity' : ratioRiskBand.maxRatio * 100)}%).`;
+    totalScore += ratioRiskBand.points;
 
-        // --- 3. Buyer GST Frequency Risk ---
-        // Same buyer GST > 3 times in last 30 days -> +10
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-        const buyerFrequency = await prisma.invoice.count({
-            where: {
-                user_id: userId,
-                buyer_gstin: buyerGSTIN,
-                created_at: {
-                    gte: thirtyDaysAgo
-                }
+    // 2) SPIKE DETECTION
+    if (last6Invoices.length > 0) {
+        const avgLast6 = last6Invoices.reduce((a, b) => a + b, 0) / last6Invoices.length;
+        if (avgLast6 > 0) {
+            const spikeMultiplier = invoiceAmount / avgLast6;
+
+            // Expected bands: > 2.0x, > 1.5x
+            const spikeBand = FRAUD_CONSTANTS.SPIKE_MULTIPLIERS.find(b => spikeMultiplier > b.multiplier);
+            if (spikeBand) {
+                breakdown.spikeRisk.score = spikeBand.points;
+                breakdown.spikeRisk.reason = `Invoice amount is ${spikeMultiplier.toFixed(2)}x the average of last 6 invoices (> ${spikeBand.multiplier}x).`;
+                totalScore += spikeBand.points;
             }
-        });
-
-        // check > 3 (excluding current if it was already inserted? Controller inserts first usually? 
-        // The requirements say "when uploading", usually implies before or during. 
-        // If controller creates invoice first, count will include current one. 
-        // Requirement: > 3 times. If current is 4th, it matches. 
-        // Let's assume we are checking history. If 4 exist including current, that's > 3 if we count this one as part of the pattern.
-        // Actually, safer to check count. If > 3, add risk.
-        if (buyerFrequency > 3) {
-            riskScore += 10;
-            reasons.push("Frequent Buyer Interactions (>3 in 30 days) (+10)");
         }
-
-        // --- 4. Invoice Frequency Risk ---
-        // More than 10 invoices uploaded in 1 week -> +15
-        const oneWeekAgo = new Date();
-        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-
-        const weeklyInvoiceCount = await prisma.invoice.count({
-            where: {
-                user_id: userId,
-                created_at: {
-                    gte: oneWeekAgo
-                }
-            }
-        });
-
-        if (weeklyInvoiceCount > 10) {
-            riskScore += 15;
-            reasons.push("High Upload Volume (>10 in 7 days) (+15)");
-        }
-
-        // Cap score at 100
-        riskScore = Math.min(riskScore, 100);
-
-        // Determine flagged status (flagged if fraudScore >= 70)
-        const flagged = riskScore >= 70;
-
-        const reasonString = reasons.length > 0 ? reasons.join(", ") : "Low Risk";
-
-        // If flagged, save to FraudFlag table
-        if (flagged) {
-            await prisma.fraudFlag.create({
-                data: {
-                    userId: userId,
-                    reason: reasonString,
-                    riskScore: riskScore,
-                    invoiceId: invoiceId || null
-                }
-            });
-        }
-
-        return {
-            flagged,
-            riskScore, // returning as riskScore to match controller expectation
-            reasons,
-            reasonString
-        };
-
-    } catch (error) {
-        console.error("Fraud detection error:", error);
-        // Default to high risk on error to be safe, or throw
-        throw new Error(`Fraud detection failed: ${error.message}`);
     }
+
+
+    // 3) ROUND AMOUNT PATTERN
+    let hasRoundRisk = false;
+    if (invoiceAmount % FRAUD_CONSTANTS.ROUND_AMOUNT.DIVISOR === 0) {
+        // Check if last 3 invoices also have round numbers
+        const last3Invoices = invoiceHistory.slice(0, FRAUD_CONSTANTS.ROUND_AMOUNT.HISTORY_CHECK_COUNT);
+        const historyRoundCount = last3Invoices.filter(inv => inv.amount % FRAUD_CONSTANTS.ROUND_AMOUNT.DIVISOR === 0).length;
+
+        if (historyRoundCount === FRAUD_CONSTANTS.ROUND_AMOUNT.HISTORY_CHECK_COUNT && last3Invoices.length === FRAUD_CONSTANTS.ROUND_AMOUNT.HISTORY_CHECK_COUNT) {
+            breakdown.roundRisk.score = FRAUD_CONSTANTS.ROUND_AMOUNT.MULTIPLE_INSTANCE_POINTS;
+            breakdown.roundRisk.reason = `Current and previous 3 invoices all have round artificial figures.`;
+            totalScore += FRAUD_CONSTANTS.ROUND_AMOUNT.MULTIPLE_INSTANCE_POINTS;
+            hasRoundRisk = true;
+        } else {
+            breakdown.roundRisk.score = FRAUD_CONSTANTS.ROUND_AMOUNT.SINGLE_INSTANCE_POINTS;
+            breakdown.roundRisk.reason = `Invoice amount is a round artificial figure (multiple of ${FRAUD_CONSTANTS.ROUND_AMOUNT.DIVISOR}).`;
+            totalScore += FRAUD_CONSTANTS.ROUND_AMOUNT.SINGLE_INSTANCE_POINTS;
+            hasRoundRisk = true;
+        }
+    }
+
+    if (!hasRoundRisk) {
+        breakdown.roundRisk.score = 0;
+        breakdown.roundRisk.reason = `No suspicious round amount patterns detected.`;
+    }
+
+    // 4) AGE VS INVOICE MISMATCH
+    const expectedSafeLimit = (businessAge || 0) * FRAUD_CONSTANTS.AGE_MISMATCH.SAFE_LIMIT_PER_YEAR;
+    if (invoiceAmount > expectedSafeLimit) {
+        breakdown.ageMismatchRisk.score = FRAUD_CONSTANTS.AGE_MISMATCH.POINTS;
+        breakdown.ageMismatchRisk.reason = `Invoice (₹${invoiceAmount.toLocaleString()}) exceeds expected safe limit (₹${expectedSafeLimit.toLocaleString()}) for business age (${businessAge} yrs).`;
+        totalScore += FRAUD_CONSTANTS.AGE_MISMATCH.POINTS;
+    }
+
+
+    // 5) DUPLICATE CHECK
+    if (hasDuplicate) {
+        breakdown.duplicateRisk.score = FRAUD_CONSTANTS.DUPLICATE.POINTS;
+        breakdown.duplicateRisk.reason = `Similar invoice to same buyer found within ${FRAUD_CONSTANTS.DUPLICATE.TIME_WINDOW_HOURS} hours.`;
+        totalScore += FRAUD_CONSTANTS.DUPLICATE.POINTS;
+    }
+
+
+    // Finally Cap Score
+    const finalScore = Math.min(Math.max(0, totalScore), FRAUD_CONSTANTS.MAX_SCORE);
+    const fraudProbability = finalScore / 100.0;
+
+    return {
+        score: finalScore,
+        probability: fraudProbability,
+        breakdown
+    };
 };

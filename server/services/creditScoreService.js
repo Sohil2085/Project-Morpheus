@@ -1,127 +1,72 @@
-import { PrismaClient, RiskLevel } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { CREDIT_CONSTANTS } from './riskConstants.js';
 
 /**
- * Calculates credit score for an invoice and saves it to the database.
- * 
- * Logic:
- * - Start with base 100
- * - Deduct: fraudScore * 0.4
- * - Deduct: businessAge < 1 year (-15)
- * - Deduct: invoiceAmount > 20L (-10)
- * - Deduct: user has > 2 flagged invoices (-20)
- * - Bonus: businessAge > 3 years (+10)
- * - Bonus: previous invoices settled > 5 (+5)
- * 
- * Risk Levels:
- * - 80-100 : LOW
- * - 50-79 : MEDIUM
- * - < 50 : HIGH
+ * Calculates Base Credit Score (0-100) based on positive trust indicators.
  * 
  * @param {Object} params
- * @param {string} params.invoiceId - The unique ID of the invoice
- * @param {number} params.amount - The invoice amount
- * @param {number} params.businessAge - The user's business age in years
- * @param {number} params.fraudRiskScore - The calculated fraud risk score (0-100)
- * @param {string} params.userId - User ID for history checks
- * @returns {Promise<{ score: number, riskLevel: RiskLevel }>}
+ * @param {number} params.businessAge - Business age in years
+ * @param {number} params.annualTurnover - Annual turnover in INR
+ * @param {boolean} params.gstVerified - Whether GST is verified
+ * @param {number} params.gstActiveYears - Number of years GST has been active (can default to businessAge if unknown)
+ * @param {number} params.invoiceAmount - Current invoice amount in INR
+ * 
+ * @returns {Object} { score: number, breakdown: Object }
  */
-export const calculateCreditScore = async ({ invoiceId, amount, businessAge, fraudRiskScore, userId }) => {
-    try {
-        let score = 100;
+export const calculateCreditScore = ({
+    businessAge,
+    annualTurnover,
+    gstVerified,
+    gstActiveYears,
+    invoiceAmount
+}) => {
+    let totalScore = CREDIT_CONSTANTS.BASE_POINTS;
+    const breakdown = {
+        ageScore: { score: 0, reason: '' },
+        turnoverScore: { score: 0, reason: '' },
+        gstScore: { score: 0, reason: '' },
+        exposureScore: { score: 0, reason: '' },
+    };
 
-        // --- Deductions ---
+    // 1) BUSINESS AGE SCORE
+    const ageBand = CREDIT_CONSTANTS.AGE_BANDS.find(b => businessAge < b.maxYears) || CREDIT_CONSTANTS.AGE_BANDS[CREDIT_CONSTANTS.AGE_BANDS.length - 1];
+    breakdown.ageScore.score = ageBand.points;
+    breakdown.ageScore.reason = `Business age is ${businessAge} years (< ${ageBand.maxYears === Infinity ? 'Infinity' : ageBand.maxYears} years expected stability).`;
+    totalScore += ageBand.points;
 
-        // 1. Fraud Score Impact
-        // Deduct fraudScore * 0.4
-        score -= (fraudRiskScore * 0.4);
+    // 2) TURNOVER SCORE
+    const turnoverBand = CREDIT_CONSTANTS.TURNOVER_BANDS.find(b => annualTurnover < b.maxAmount) || CREDIT_CONSTANTS.TURNOVER_BANDS[CREDIT_CONSTANTS.TURNOVER_BANDS.length - 1];
+    breakdown.turnoverScore.score = turnoverBand.points;
+    breakdown.turnoverScore.reason = `Annual turnover is ₹${annualTurnover.toLocaleString()} (< ₹${turnoverBand.maxAmount === Infinity ? 'Infinity' : turnoverBand.maxAmount.toLocaleString()}).`;
+    totalScore += turnoverBand.points;
 
-        // 2. Business Age Penalty/Bonus
-        if (businessAge < 1) {
-            score -= 20; // Increased penalty for very new businesses
-        } else if (businessAge === 1) {
-            score -= 10;
-        }
-        // If 2 years, no penalty/bonus.
-
-        // 3. High Value Invoice Penalty (Tiered: >10L -> -5, >20L -> -10)
-        if (amount > 2000000) {
-            score -= 10;
-        } else if (amount > 1000000) {
-            score -= 5;
-        }
-
-        // 4. Flagged Invoice History
-        // if user has more than 2 flagged invoices -> -20
-        const flaggedCount = await prisma.fraudFlag.count({
-            where: { userId: userId }
-        });
-
-        if (flaggedCount > 2) {
-            score -= 20;
-        }
-
-
-        // --- Bonuses ---
-
-        // 1. Established Business Bonus 
-        if (businessAge >= 5) {
-            score += 20; // Highly established
-        } else if (businessAge > 2) {
-            score += 10; // Growing business (3-4 years)
-        }
-
-        // 2. Successful Settlement History
-        // +5 if previous invoices settled successfully > 5
-        const settledCount = await prisma.invoice.count({
-            where: {
-                user_id: userId,
-                status: 'SETTLED'
-            }
-        });
-
-        if (settledCount > 5) {
-            score += 5;
-        }
-
-        // --- Finalize ---
-
-        // Clamp score 0-100
-        score = Math.round(Math.max(0, Math.min(100, score)));
-
-        // Determine Risk Level
-        let riskLevel;
-        if (score >= 80) {
-            riskLevel = RiskLevel.LOW;
-        } else if (score >= 50) {
-            riskLevel = RiskLevel.MEDIUM;
-        } else {
-            riskLevel = RiskLevel.HIGH;
-        }
-
-        // Save result to CreditScore table
-        // Use upsert to handle potential re-runs safely, though create is standard for new invoice
-        await prisma.creditScore.upsert({
-            where: { invoice_id: invoiceId },
-            update: {
-                score: score,
-                risk_level: riskLevel,
-            },
-            create: {
-                invoice_id: invoiceId,
-                score: score,
-                risk_level: riskLevel,
-            }
-        });
-
-        return {
-            score,
-            riskLevel
-        };
-
-    } catch (error) {
-        console.error("Credit Score Calculation Error:", error);
-        throw new Error(`Failed to calculate credit score: ${error.message}`);
+    // 3) GST TRUST SCORE
+    if (!gstVerified) {
+        breakdown.gstScore.score = CREDIT_CONSTANTS.GST_SCORE.UNVERIFIED;
+        breakdown.gstScore.reason = `GST is not verified.`;
+    } else if (gstActiveYears < 1) {
+        breakdown.gstScore.score = CREDIT_CONSTANTS.GST_SCORE.VERIFIED_ACTIVE_LT_1;
+        breakdown.gstScore.reason = `GST is verified but active for less than 1 year (${gstActiveYears} years).`;
+        totalScore += CREDIT_CONSTANTS.GST_SCORE.VERIFIED_ACTIVE_LT_1;
+    } else {
+        breakdown.gstScore.score = CREDIT_CONSTANTS.GST_SCORE.VERIFIED_ACTIVE_GTE_1;
+        breakdown.gstScore.reason = `GST is verified and active for >= 1 year (${gstActiveYears} years).`;
+        totalScore += CREDIT_CONSTANTS.GST_SCORE.VERIFIED_ACTIVE_GTE_1;
     }
+
+    // 4) INVOICE EXPOSURE SCORE
+    const invoiceRatio = annualTurnover > 0 ? (invoiceAmount / annualTurnover) : Infinity; // Handle divide by zero
+
+    // Find correctly exposed band
+    const exposureBand = CREDIT_CONSTANTS.EXPOSURE_BANDS.find(b => invoiceRatio < b.maxRatio) || CREDIT_CONSTANTS.EXPOSURE_BANDS[CREDIT_CONSTANTS.EXPOSURE_BANDS.length - 1];
+    breakdown.exposureScore.score = exposureBand.points;
+    breakdown.exposureScore.reason = `Invoice ratio is ${(invoiceRatio * 100).toFixed(2)}% of turnover (< ${(exposureBand.maxRatio === Infinity ? 'Infinity' : exposureBand.maxRatio * 100)}%).`;
+    totalScore += exposureBand.points;
+
+    // Finally Cap Score
+    const finalScore = Math.min(Math.max(0, totalScore), CREDIT_CONSTANTS.MAX_SCORE);
+
+    return {
+        score: finalScore,
+        breakdown
+    };
 };

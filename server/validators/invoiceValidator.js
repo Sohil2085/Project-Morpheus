@@ -15,6 +15,8 @@ const invoiceSchema = z.object({
         .string({ required_error: "Buyer GSTIN is required" })
         .length(15, "GSTIN must be exactly 15 characters")
         .regex(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Invalid GSTIN format"),
+
+    invoiceNumber: z.string().optional(),
 });
 
 export const validateInvoice = (data) => {
