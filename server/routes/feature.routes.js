@@ -10,11 +10,9 @@ const prisma = new PrismaClient();
 // Get all feature flags (accessible by authenticated users, for context)
 router.get('/', requireAuth, async (req, res) => {
     try {
+        // Always refresh cache to automatically seed any new codebase defaultFlags
+        await refreshCache();
         let features = await prisma.featureFlag.findMany();
-        if (features.length === 0) {
-            await refreshCache();
-            features = await prisma.featureFlag.findMany();
-        }
         res.json({ success: true, features });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Failed to fetch features' });

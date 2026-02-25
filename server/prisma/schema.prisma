@@ -24,6 +24,7 @@ model User {
   fraud_flags  FraudFlag[]
   invoices     Invoice[]   @relation("UserInvoices")
   kyc          KYC?
+  lenderProfile LenderProfile?
 
   @@index([email])
   @@map("users")
@@ -185,4 +186,57 @@ enum RiskLevel {
 enum TransactionStatus {
   INITIATED
   COMPLETED
+}
+
+enum LenderType {
+  BANK
+  NBFC
+  REGISTERED_COMPANY
+  INDIVIDUAL_INVESTOR
+  OTHER_FINANCIAL_ENTITY
+}
+
+enum VerificationStatus {
+  NOT_SUBMITTED
+  IN_REVIEW
+  VERIFIED
+  REJECTED
+}
+
+model LenderProfile {
+  id                 String             @id @default(uuid())
+  userId             String             @unique
+  lenderType         LenderType
+  // Organization Info
+  organizationName   String?
+  registrationNumber String?
+  rbiLicenseNumber   String?
+  gstNumber          String?
+  // Individual Info
+  panNumber          String?
+  // Contact Info
+  contactPersonName  String?
+  contactPhone       String?
+  officialEmail      String?
+  // Investment Profile
+  capitalRange       String?
+  riskPreference     String?
+  // Bank Details
+  bankAccountNumber  String?
+  ifscCode           String?
+  // Verification
+  verificationStatus VerificationStatus @default(NOT_SUBMITTED)
+  adminRemark        String?
+  // Performance Metrics
+  totalFundedAmount  Float              @default(0)
+  totalDealsFunded   Int                @default(0)
+  rating             Float?
+  // Timestamps
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("lender_profiles")
 }

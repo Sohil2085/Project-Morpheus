@@ -4,6 +4,7 @@ import { createInvoice, getMyInvoices, getInvoiceById } from '../controllers/inv
 import { protect } from '../middleware/authMiddleware.js';
 import { checkRole } from '../middleware/roleMiddleware.js';
 import { requireFeatureEnabled } from '../middleware/feature.middleware.js';
+import { requireVerifiedLender } from '../middleware/lender.middleware.js';
 
 const router = express.Router();
 
@@ -29,9 +30,10 @@ router.get(
 );
 
 // Get specific invoice by ID (Authenticated user)
-// Controller handles ownership checks
+// Controller handles ownership checks, but lenders must be verified to view
 router.get(
     '/:id',
+    requireVerifiedLender,
     getInvoiceById
 );
 

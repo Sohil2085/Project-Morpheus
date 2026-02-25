@@ -18,7 +18,8 @@ import InvoiceList from './pages/InvoiceList';
 import KycForm from './pages/KycForm';
 import Profile from './pages/Profile';
 import AdminKycPage from './pages/AdminKycPage';
-import LenderKycPage from './pages/LenderKycPage';
+import AdminLenderKycPage from './pages/AdminLenderKycPage';
+import LenderOnboardingPage from './pages/LenderOnboardingPage';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading, isAuthenticated } = useAuth();
@@ -151,7 +152,7 @@ function App() {
             } />
             <Route path="/lender/kyc" element={
               <ProtectedRoute allowedRoles={['LENDER']}>
-                <LenderKycPage />
+                <LenderOnboardingPage />
               </ProtectedRoute>
             } />
 
@@ -164,6 +165,11 @@ function App() {
             <Route path="/admin/kyc" element={
               <ProtectedRoute allowedRoles={['ADMIN']}>
                 <AdminKycPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/lender-kyc" element={
+              <ProtectedRoute allowedRoles={['ADMIN']}>
+                <AdminLenderKycPage />
               </ProtectedRoute>
             } />
 

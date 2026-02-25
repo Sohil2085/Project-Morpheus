@@ -4,10 +4,12 @@ import { Building2, FileText, CheckCircle, AlertTriangle, ShieldCheck, Upload, X
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/authApi';
+import { useFeatures } from '../context/FeatureContext';
 
 const LenderKycPage = () => {
     const navigate = useNavigate();
     const { user, login, token } = useAuth();
+    const { features } = useFeatures();
 
     const [loading, setLoading] = useState(false);
     const [step, setStep] = useState(1);
@@ -16,6 +18,7 @@ const LenderKycPage = () => {
     const fileInputRef = useRef(null);
 
     const [formData, setFormData] = useState({
+        lenderType: 'INDIVIDUAL_INVESTOR', // Defaulting for simple UI
         panNumber: '',
         companyRegNumber: '',
         address: '',
@@ -62,17 +65,19 @@ const LenderKycPage = () => {
 
         setLoading(true);
         try {
-            // Map lender fields to existing KYC endpoint schema
+            // Map lender fields to new Lender KYC endpoint schema
             const payload = {
-                legalName: user?.name || '',
-                businessName: formData.companyRegNumber || user?.name || '',
-                gstNumber: formData.panNumber,
-                businessStartDate: new Date().toISOString(),
-                businessAddress: formData.address,
-                turnover: 0,
-                gstCertificateUrl: '',
+                lenderType: formData.lenderType,
+                panNumber: formData.panNumber,
+                registrationNumber: formData.companyRegNumber,
+                organizationName: formData.companyRegNumber ? user?.name : undefined, // Example
+                address: formData.address,
+                bankAccountNumber: formData.accountNumber,
+                ifscCode: formData.ifscCode,
+                contactPersonName: formData.accountHolderName
             };
-            await api.post('/kyc/submit', payload);
+
+            await api.post('/lender/kyc/submit', payload);
             toast.success('KYC submitted successfully!');
 
             const updatedUser = { ...user, kycStatus: 'IN_PROGRESS' };
@@ -87,6 +92,23 @@ const LenderKycPage = () => {
     };
 
     // ── Same early-return screens as KycForm.jsx ──────────────────────────────
+
+    if (features.LENDER_KYC === false) {
+        return (
+            <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 text-center">
+                <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-6">
+                    <AlertTriangle className="text-slate-400" size={32} />
+                </div>
+                <h2 className="text-2xl font-bold text-white mb-2">Feature Disabled</h2>
+                <p className="text-white/60 mb-8 max-w-md">
+                    The Lender KYC module is currently offline for maintenance. Please check back later.
+                </p>
+                <button onClick={() => navigate('/lender')} className="bg-slate-800 hover:bg-slate-700 text-white px-6 py-2.5 rounded-xl font-medium transition-colors">
+                    Return to Dashboard
+                </button>
+            </div>
+        );
+    }
 
     if (user?.kycStatus === 'IN_PROGRESS') {
         return (
@@ -203,6 +225,32 @@ const LenderKycPage = () => {
                             {/* ── STEP 1: Identity Info ── */}
                             {step === 1 && (
                                 <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+
+                                    {/* Lender Type Selection */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-white/80 mb-2">
+                                            Lender Category <span className="text-red-400">*</span>
+                                        </label>
+                                        <div className="relative">
+                                            <select
+                                                name="lenderType"
+                                                value={formData.lenderType}
+                                                onChange={handleChange}
+                                                className="w-full bg-slate-950 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-blue-500/50 transition-all appearance-none"
+                                                required
+                                            >
+                                                <option value="INDIVIDUAL_INVESTOR">Individual Investor</option>
+                                                <option value="REGISTERED_COMPANY">Registered Company</option>
+                                                <option value="NBFC">NBFC</option>
+                                                <option value="BANK">Bank</option>
+                                                <option value="OTHER_FINANCIAL_ENTITY">Other Financial Entity</option>
+                                            </select>
+                                            <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                                <svg className="h-5 w-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     {/* PAN Number */}
                                     <div>
                                         <label className="block text-sm font-medium text-white/80 mb-2">

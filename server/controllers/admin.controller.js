@@ -22,6 +22,27 @@ export const getPendingKyc = async (req, res, next) => {
     }
 };
 
+export const getPendingLenderKyc = async (req, res, next) => {
+    try {
+        const pendingLenders = await prisma.lenderProfile.findMany({
+            orderBy: { createdAt: 'desc' },
+            include: {
+                user: {
+                    select: { id: true, name: true, email: true }
+                }
+            }
+        });
+
+        res.status(200).json({
+            success: true,
+            message: 'Pending Lender KYC requests fetched successfully',
+            data: pendingLenders
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const approveKyc = async (req, res, next) => {
     try {
         const kycId = req.params.id;
@@ -113,6 +134,74 @@ export const getDashboardStats = async (req, res, next) => {
                 totalInvoices,
                 totalFunding
             }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const approveLender = async (req, res, next) => {
+    try {
+        const id = req.params.id;
+
+        const result = await prisma.$transaction(async (tx) => {
+            const profile = await tx.lenderProfile.update({
+                where: { id },
+                data: {
+                    verificationStatus: 'VERIFIED'
+                }
+            });
+
+            await tx.user.update({
+                where: { id: profile.userId },
+                data: { kycStatus: 'VERIFIED' }
+            });
+
+            return profile;
+        });
+
+        res.status(200).json({
+            success: true,
+            message: 'Lender KYC Approved Successfully',
+            data: result
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const rejectLender = async (req, res, next) => {
+    try {
+        const id = req.params.id;
+        const { adminRemark } = req.body;
+
+        if (!adminRemark) {
+            const error = new Error('Admin remark is required for rejection');
+            error.name = 'ValidationError';
+            throw error;
+        }
+
+        const result = await prisma.$transaction(async (tx) => {
+            const profile = await tx.lenderProfile.update({
+                where: { id },
+                data: {
+                    verificationStatus: 'REJECTED',
+                    adminRemark
+                }
+            });
+
+            await tx.user.update({
+                where: { id: profile.userId },
+                data: { kycStatus: 'REJECTED' }
+            });
+
+            return profile;
+        });
+
+        res.status(200).json({
+            success: true,
+            message: 'Lender KYC Rejected Successfully',
+            data: result
         });
     } catch (error) {
         next(error);

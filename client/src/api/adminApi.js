@@ -9,6 +9,15 @@ export const getPendingKyc = async () => {
     }
 };
 
+export const getPendingLenderKyc = async () => {
+    try {
+        const response = await api.get('/admin/lender/kyc/pending');
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to fetch pending Lender KYC requests';
+    }
+};
+
 export const approveKyc = async (id) => {
     try {
         const response = await api.post(`/admin/kyc/${id}/approve`);
@@ -33,5 +42,23 @@ export const getAdminStats = async () => {
         return response.data;
     } catch (error) {
         throw error.response?.data?.message || 'Failed to fetch admin stats';
+    }
+};
+
+export const approveLenderKyc = async (id) => {
+    try {
+        const response = await api.patch(`/admin/lender/${id}/approve`);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to approve Lender KYC';
+    }
+};
+
+export const rejectLenderKyc = async (id, adminRemark) => {
+    try {
+        const response = await api.patch(`/admin/lender/${id}/reject`, { adminRemark });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || 'Failed to reject Lender KYC';
     }
 };
