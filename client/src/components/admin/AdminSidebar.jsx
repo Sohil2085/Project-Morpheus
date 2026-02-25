@@ -20,7 +20,8 @@ const AdminSidebar = ({ open }) => {
 
     const menuItems = [
         { icon: BarChart3, label: 'Overview', path: '/admin' },
-        { icon: ShieldCheck, label: 'KYC Verification', path: '/admin/kyc' },
+        { icon: ShieldCheck, label: 'MSME Verification', path: '/admin/kyc' },
+        { icon: FileText, label: 'Lender Verification', path: '/admin/lender-kyc' },
         { icon: Users, label: 'Users', path: '/admin/users' },
         { icon: FileText, label: 'Invoices', path: '/admin/invoices' },
         { icon: TrendingUp, label: 'Bids & Funding', path: '/admin/bids' },

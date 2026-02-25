@@ -14,6 +14,7 @@ export const refreshCache = async () => {
         // Default flags to insert if they don't exist
         const defaultFlags = [
             'KYC_MODULE',
+            'LENDER_KYC',
             'INVOICE_UPLOAD',
             'LENDER_MARKETPLACE',
             'FUNDING_OFFER',

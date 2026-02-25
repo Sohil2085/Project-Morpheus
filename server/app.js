@@ -3,6 +3,7 @@ import cors from 'cors';
 import authRoutes from './routes/auth.routes.js';
 import invoiceRoutes from './routes/invoiceRoutes.js';
 import kycRoutes from './routes/kyc.routes.js';
+import lenderRoutes from './routes/lender.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import featureRoutes from './routes/feature.routes.js';
 import errorHandler from './middleware/error.middleware.js';
@@ -32,6 +33,7 @@ app.use((req, res, next) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/kyc', kycRoutes);
+app.use('/api/lender', lenderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/features', featureRoutes);
@@ -42,7 +44,7 @@ app.get('/', (req, res) => {
 });
 app.get("/health", (req, res) => {
     res.status(200).json({ status: "running" });
-}); 
+});
 
 app.use(errorHandler);
 
