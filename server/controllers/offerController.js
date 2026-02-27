@@ -49,11 +49,24 @@ export const createOffer = async (req, res) => {
             return res.status(400).json({ message: 'Invoice is not open for funding' });
         }
 
-        // 3. Calculate interestAmount and platformFee
+        // 3. Verify lender wallet balance
+        const lenderWallet = await prisma.wallet.findUnique({
+            where: { userId: lenderId }
+        });
+
+        if (!lenderWallet) {
+            return res.status(404).json({ message: 'Wallet not found' });
+        }
+
+        if (parseFloat(lenderWallet.availableBalance) < parseFloat(fundedAmount)) {
+            return res.status(400).json({ message: 'Insufficient available balance in wallet' });
+        }
+
+        // 4. Calculate interestAmount and platformFee
         const interestAmount = (parseFloat(fundedAmount) * (parseFloat(interestRate) / 100)).toFixed(2);
         const platformFee = (parseFloat(invoice.amount) * 0.01).toFixed(2);
 
-        // 4. Save offer as PENDING
+        // 5. Execute Transaction: Save offer
         const offer = await prisma.fundingOffer.create({
             data: {
                 invoiceId,
@@ -96,7 +109,16 @@ export const acceptOffer = async (req, res) => {
             return res.status(400).json({ message: 'Offer is not pending' });
         }
 
-        // 2. Execute Prisma Transaction
+        // 2. Verify lender has sufficient funds before accepting
+        const lenderWallet = await prisma.wallet.findUnique({
+            where: { userId: offer.lenderId }
+        });
+
+        if (!lenderWallet || parseFloat(lenderWallet.availableBalance) < parseFloat(offer.fundedAmount)) {
+            return res.status(400).json({ message: 'The lender no longer has sufficient funds to cover this offer.' });
+        }
+
+        // 3. Execute Prisma Transaction
         const transactionResult = await prisma.$transaction(async (tx) => {
             // Set offer status to ACCEPTED
             const acceptedOffer = await tx.fundingOffer.update({
@@ -121,7 +143,6 @@ export const acceptOffer = async (req, res) => {
             });
 
             // Create Deal
-            // totalPayableToLender = fundedAmount + interestAmount
             const totalPayableToLender = parseFloat(offer.fundedAmount) + parseFloat(offer.interestAmount);
 
             const deal = await tx.deal.create({
@@ -136,6 +157,30 @@ export const acceptOffer = async (req, res) => {
                     totalPayableToLender: totalPayableToLender,
                     dueDate: updatedInvoice.due_date,
                     status: 'ACTIVE'
+                }
+            });
+
+            // Funds Transfer
+            // 1. Deduct from Lender Wallet
+            await tx.wallet.update({
+                where: { userId: offer.lenderId },
+                data: {
+                    availableBalance: { decrement: offer.fundedAmount },
+                    lockedBalance: { increment: offer.fundedAmount }
+                }
+            });
+
+            // 2. Add to MSME Wallet
+            await tx.wallet.upsert({
+                where: { userId: msmeId },
+                update: {
+                    availableBalance: { increment: offer.fundedAmount }
+                },
+                create: {
+                    userId: msmeId,
+                    availableBalance: offer.fundedAmount,
+                    lockedBalance: 0,
+                    totalEarnings: 0
                 }
             });
 
