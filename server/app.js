@@ -6,6 +6,9 @@ import kycRoutes from './routes/kyc.routes.js';
 import lenderRoutes from './routes/lender.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import featureRoutes from './routes/feature.routes.js';
+import offerRoutes from './routes/offerRoutes.js';
+import dealRoutes from './routes/dealRoutes.js';
+import walletRoutes from './routes/walletRoutes.js';
 import errorHandler from './middleware/error.middleware.js';
 import cookieParser from 'cookie-parser';
 
@@ -37,6 +40,9 @@ app.use('/api/lender', lenderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/features', featureRoutes);
+app.use('/api/offers', offerRoutes);
+app.use('/api/deal', dealRoutes);
+app.use('/api/wallet', walletRoutes);
 
 // Root route
 app.get('/', (req, res) => {
