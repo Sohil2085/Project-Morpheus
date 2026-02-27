@@ -41,7 +41,10 @@ const WalletPage = () => {
         try {
             setIsSubmitting(true);
             const res = await topUpWallet(amount);
-            setWallet(res.wallet);
+            setWallet(prev => ({
+                ...prev,
+                ...res.wallet
+            }));
             toast.success('Wallet topped up successfully!');
             setTopUpAmount('');
         } catch (error) {

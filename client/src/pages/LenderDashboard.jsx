@@ -636,15 +636,7 @@ const InvestmentsSection = ({ myDeals, onFundDeal }) => {
                                                 : <span className="text-muted">—</span>}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            {deal.status === 'ACTIVE' ? (
-                                                <button
-                                                    onClick={() => onFundDeal(deal.id)}
-                                                    className="btn-primary px-3 py-1.5 text-xs font-semibold rounded-lg flex items-center gap-1">
-                                                    <Zap size={13} /> Fund Deal
-                                                </button>
-                                            ) : (
-                                                <InvestmentStatusBadge status={deal.status} />
-                                            )}
+                                            <InvestmentStatusBadge status={deal.status} />
                                         </td>
                                     </tr>
                                 );
@@ -968,6 +960,8 @@ const LenderDashboard = () => {
                 fundedAmount: amount,
                 interestRate: rate
             });
+            const updatedWallet = await getMyWallet();
+            setWallet(updatedWallet);
             toast.success('Funding offer sent successfully!');
             setIsOfferModalOpen(false);
             setOfferForm({ amount: '', rate: '' });
@@ -976,22 +970,6 @@ const LenderDashboard = () => {
             toast.error(error.message || 'Failed to send offer');
         } finally {
             setIsSubmittingOffer(false);
-        }
-    };
-
-    const handleFundDeal = async (dealId) => {
-        try {
-            await fundDeal(dealId);
-            toast.success('Deal funded successfully!');
-            // Refresh data
-            const [walletData, dealsData] = await Promise.all([
-                getMyWallet(),
-                getMyDeals()
-            ]);
-            setWallet(walletData);
-            setMyDeals(dealsData);
-        } catch (error) {
-            toast.error(error.message || 'Failed to fund deal');
         }
     };
 
@@ -1043,7 +1021,7 @@ const LenderDashboard = () => {
                     }}
                     availableInvoices={availableInvoices} />
                 : <MarketplaceKycBanner />;
-            case 'investments': return <InvestmentsSection myDeals={myDeals} onFundDeal={handleFundDeal} />;
+            case 'investments': return <InvestmentsSection myDeals={myDeals} />;
             case 'meetings': return <MeetingsSection />;
             case 'analytics': return <AnalyticsSection />;
             default: return <OverviewSection wallet={wallet} myDeals={myDeals} />;
