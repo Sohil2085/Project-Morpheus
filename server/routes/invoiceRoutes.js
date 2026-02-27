@@ -1,6 +1,6 @@
 
 import express from 'express';
-import { createInvoice, getMyInvoices, getInvoiceById } from '../controllers/invoiceController.js';
+import { createInvoice, getMyInvoices, getInvoiceById, getAvailableInvoices } from '../controllers/invoiceController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { checkRole } from '../middleware/roleMiddleware.js';
 import { requireFeatureEnabled } from '../middleware/feature.middleware.js';
@@ -27,6 +27,15 @@ router.get(
     '/my',
     checkRole(['MSME']),
     getMyInvoices
+);
+
+// Get available invoices for lenders (LENDER role + verified lender check)
+// This needs to be checked before /:id so that 'available' is not treated as an ID
+router.get(
+    '/available',
+    checkRole(['LENDER', 'ADMIN']),
+    requireVerifiedLender,
+    getAvailableInvoices
 );
 
 // Get specific invoice by ID (Authenticated user)
